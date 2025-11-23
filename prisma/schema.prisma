@@ -14,47 +14,57 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  password  String
-  role      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  orders    Order[]
+enum MaterialType {
+  liquid
+  granular
 }
 
 model Material {
-  id        Int       @id @default(autoincrement())
+  id        BigInt       @id @default(autoincrement())
   name      String
-  type      String
+  type      MaterialType
   quantity  Float
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt @default(now())
   products  Product[]
 }
 
 model Product {
-  id         Int      @id @default(autoincrement())
+  id         BigInt   @id @default(autoincrement())
   image      String?
   name       String
-  materialId Int
+  materialId BigInt
   material   Material @relation(fields: [materialId], references: [id])
   price      Float
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  updatedAt  DateTime @updatedAt @default(now())
   orders     Order[]
+}
+
+enum UserRole {
+  admin
+  cashier
+}
+
+model User {
+  id        BigInt   @id @default(autoincrement())
+  name      String   @unique
+  password  String
+  role      UserRole @default(cashier)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+  orders    Order[]
 }
 
 model Order {
   id          Int      @id @default(autoincrement())
-  cashierId   Int
+  cashierId   BigInt
   cashier     User     @relation(fields: [cashierId], references: [id])
-  productId   Int
+  productId   BigInt
   product     Product  @relation(fields: [productId], references: [id])
   quantity    Int
   totalPrice  Float
   paymenttype String
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @updatedAt @default(now())
 }
