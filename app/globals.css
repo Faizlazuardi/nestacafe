@@ -2,7 +2,14 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #4B5563;
+  --brand-100: #FEE2E2;
+  --brand-200: #DC1F26;
+  --brand-300: #E31E24;
+  --brand-350: #E34C51;
+  --background-100: #FFFBEB;
+  --font-geist-sans: 'Droid Sans', sans-serif;
+  --font-geist-mono: 'Droid Sans Mono', monospace;
 }
 
 @theme inline {
@@ -22,5 +29,84 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:'Droid Sans', sans-serif;;
+}
+
+.text-secondary{
+  color: var(--brand-200);
+}
+
+.bg-soft {
+  background-color: var(--background-100);
+}
+
+.bg-items {
+  background-color: var(--brand-100);
+}
+
+.bg-items-inactive {
+  background-color: var(--background);
+  opacity: 0.75;
+}
+
+.border-brand-100 {
+  border-color:  var(--brand-100);
+}
+
+.nav {
+  background-color: var(--brand-200);
+  color: var(--background);
+  font-weight: bold;
+}
+
+.label-user {
+  background-color: var(--brand-350);
+  color: var(--background);
+}
+
+.nav-secondary {
+  background-color: var(--brand-300);
+  color: var(--background);
+}
+
+.button-primary {
+  background-color: var(--brand-300);
+  color: var(--background);
+}
+
+.button-secondary {
+  background-color: var(--background);
+  color: var(--brand-300);
+  border: 1px solid var(--brand-300);
+}
+
+table thead {
+  background-color: var(--brand-200);
+  color: var(--background);
+}
+
+.sidebar {
+  background-color: var(--brand-300);
+  color: var(--background);
+}
+.sidebar-active {
+  background-color: var(--background);
+  color: var(--brand-300);
+}
+
+.icon {
+  background-color: var(--background-100);
+  color: var(--brand-300);
+}
+
+.stock {
+  background-color: var(--background-100);
+}
+
+.stock h2 {
+  color: var(--foreground);
+}
+
+.stock p {
+  color: var(--brand-300);
 }

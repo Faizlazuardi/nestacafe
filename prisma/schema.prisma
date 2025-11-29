@@ -5,8 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -20,25 +19,43 @@ enum MaterialType {
 }
 
 model Material {
-  id        BigInt       @id @default(autoincrement())
+  id        BigInt           @id @default(autoincrement())
   name      String
   type      MaterialType
-  quantity  Float
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt @default(now())
-  products  Product[]
+  quantity  Int
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  products  ProductVariant[]
 }
 
 model Product {
-  id         BigInt   @id @default(autoincrement())
-  image      String?
-  name       String
-  materialId BigInt
-  material   Material @relation(fields: [materialId], references: [id])
-  price      Float
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt @default(now())
-  orders     Order[]
+  id        BigInt   @id @default(autoincrement())
+  image     String
+  name      String
+  price     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  materials ProductVariant[]
+}
+
+enum VariantOption {
+  normal
+  strong
+  shotx1
+  shotx2
+  shotx3
+}
+
+model ProductVariant {
+  id            BigInt @id @default(autoincrement())
+  name          String
+  productId     BigInt
+  product       Product @relation(fields: [productId], references: [id])
+  variant       VariantOption @default(normal)
+  materialId    BigInt
+  material      Material @relation(fields: [materialId], references: [id])
+  quantityUsed  Int
+  orderItems    OrderItem[]
 }
 
 enum UserRole {
@@ -52,19 +69,32 @@ model User {
   password  String
   role      UserRole @default(cashier)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   orders    Order[]
 }
 
+enum PaymentType {
+  cash
+  qris
+}
+
 model Order {
-  id          Int      @id @default(autoincrement())
+  id          BigInt      @id @default(autoincrement())
   cashierId   BigInt
-  cashier     User     @relation(fields: [cashierId], references: [id])
-  productId   BigInt
-  product     Product  @relation(fields: [productId], references: [id])
-  quantity    Int
-  totalPrice  Float
-  paymenttype String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt @default(now())
+  cashier     User        @relation(fields: [cashierId], references: [id])
+  paymentType PaymentType
+  totalPrice  Int
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  items       OrderItem[]
+}
+
+model OrderItem {
+  id               BigInt         @id @default(autoincrement())
+  orderId          BigInt
+  order            Order          @relation(fields: [orderId], references: [id])
+  productVariantId BigInt
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+  quantity         Int
+  subtotal         Int
 }

@@ -1,0 +1,57 @@
+import prisma from "@/app/lib/prisma";
+import bcrypt from "bcryptjs";
+
+export async function getAllUsers(){
+    return await prisma.user.findMany({
+        select: {
+            id: true,
+            name: true,
+            role: true,
+        },
+    });
+}
+
+export async function getUserByNameAndPassowrd(name: string, password: string) {
+    const user = await prisma.user.findUnique({
+        select: {
+            name: true,
+            password: true,
+            role: true,
+        },
+        where: { name }
+    });
+
+    if (!user) {
+        throw new Error("username atau password salah");
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+        throw new Error("username atau password salah");
+    }
+
+    return user;
+}
+
+export async function createUser(name: string, password: string) {
+    const existingUser = await prisma.user.findUnique({
+        where: { name },
+    });
+    if (existingUser) {
+        throw new Error("User telah terdaftar");
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await prisma.user.create({
+        data: {
+        name,
+        password: hashedPassword,
+        },
+    });
+    return {
+        message: "User berhasil dibuat",
+        user: {
+        id: user.id,
+        name: user.name,
+        },
+    };
+}
