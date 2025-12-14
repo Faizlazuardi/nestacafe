@@ -9,53 +9,22 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum MaterialType {
-  liquid
-  granular
-}
-
-model Material {
-  id        BigInt           @id @default(autoincrement())
-  name      String
-  type      MaterialType
-  quantity  Int
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-  products  ProductVariant[]
-}
-
-model Product {
-  id        BigInt   @id @default(autoincrement())
-  image     String
-  name      String
-  price     Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  materials ProductVariant[]
+  Liquid
+  Solid
 }
 
 enum VariantOption {
-  normal
-  strong
-  shotx1
-  shotx2
-  shotx3
-}
-
-model ProductVariant {
-  id            BigInt @id @default(autoincrement())
-  name          String
-  productId     BigInt
-  product       Product @relation(fields: [productId], references: [id])
-  variant       VariantOption @default(normal)
-  materialId    BigInt
-  material      Material @relation(fields: [materialId], references: [id])
-  quantityUsed  Int
-  orderItems    OrderItem[]
+  Normal
+  Strong
+  Shoot_X1
+  Shoot_X2
+  Shoot_X3
 }
 
 enum UserRole {
@@ -63,38 +32,76 @@ enum UserRole {
   cashier
 }
 
-model User {
-  id        BigInt   @id @default(autoincrement())
-  name      String   @unique
-  password  String
-  role      UserRole @default(cashier)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-  orders    Order[]
-}
-
 enum PaymentType {
   cash
   qris
 }
 
-model Order {
-  id          BigInt      @id @default(autoincrement())
-  cashierId   BigInt
-  cashier     User        @relation(fields: [cashierId], references: [id])
-  paymentType PaymentType
-  totalPrice  Int
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  items       OrderItem[]
+model Material {
+  id               BigInt            @id @default(autoincrement())
+  name             String
+  type             MaterialType
+  quantity         Int
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  productMaterials ProductMaterial[]
 }
 
-model OrderItem {
-  id               BigInt         @id @default(autoincrement())
-  orderId          BigInt
-  order            Order          @relation(fields: [orderId], references: [id])
-  productVariantId BigInt
-  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
-  quantity         Int
-  subtotal         Int
+model ProductBase {
+  id        BigInt    @id @default(autoincrement())
+  image     String
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+}
+
+model Product {
+  id                 BigInt              @id @default(autoincrement())
+  productId          BigInt
+  product            ProductBase         @relation(fields: [productId], references: [id])
+  variant            VariantOption
+  price              Int
+  productMaterials   ProductMaterial[]
+  transactionDetails TransactionDetail[]
+}
+
+model ProductMaterial {
+  id           BigInt   @id @default(autoincrement())
+  productId    BigInt
+  product      Product  @relation(fields: [productId], references: [id])
+  materialId   BigInt
+  material     Material @relation(fields: [materialId], references: [id])
+  quantityUsed Int
+}
+
+model User {
+  id           BigInt        @id @default(autoincrement())
+  name         String        @unique
+  password     String
+  role         UserRole
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[]
+}
+
+model Transaction {
+  id           BigInt              @id @default(autoincrement())
+  cashierId    BigInt
+  cashier      User                @relation(fields: [cashierId], references: [id])
+  paymentType  PaymentType
+  totalPrice   Int
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  transactions TransactionDetail[]
+}
+
+model TransactionDetail {
+  id            BigInt      @id @default(autoincrement())
+  transactionId BigInt
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  productId     BigInt
+  product       Product     @relation(fields: [productId], references: [id])
+  quantity      Int
+  subtotal      Int
 }
