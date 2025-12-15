@@ -20,16 +20,16 @@ async function main() {
 
     const productBases = await prisma.productBase.createMany({
         data: [
-            { name: "Lemon Tea", image: "https://kqgwigembjesoiztvabe.supabase.co/storage/v1/object/public/Product/Lemon%20Tea.png" },
-            { name: "Lychee Tea", image: "https://kqgwigembjesoiztvabe.supabase.co/storage/v1/object/public/Product/Lychee%20Tea.png" },
-            { name: "Lemonade", image: "https://kqgwigembjesoiztvabe.supabase.co/storage/v1/object/public/Product/Lemonade.png" },
-            { name: "Orange", image: "https://kqgwigembjesoiztvabe.supabase.co/storage/v1/object/public/Product/Orange.png" },
-            { name: "Blackcurrant", image: "https://kqgwigembjesoiztvabe.supabase.co/storage/v1/object/public/Product/Blackcurrant.png" },
-            { name: "Milo Original", image: "https://kqgwigembjesoiztvabe.supabase.co/storage/v1/object/public/Product/Milo%20Original.png" },
-            { name: "Milo Coffe", image: "https://kqgwigembjesoiztvabe.supabase.co/storage/v1/object/public/Product/Milo%20Coffee.png" },
-            { name: "Caffe Late", image: "https://kqgwigembjesoiztvabe.supabase.co/storage/v1/object/public/Product/Caffe%20Late.png" },
-            { name: "Coffe Gula Aren", image: "https://kqgwigembjesoiztvabe.supabase.co/storage/v1/object/public/Product/Coffe%20Gula%20Aren.png" },
-            { name: "Nescafe Ice Roast", image: "https://kqgwigembjesoiztvabe.supabase.co/storage/v1/object/public/Product/Nescafe%20Ice%20Roast.png" },
+            { name: "Lemon Tea", image: "https://eiyfpqwedihxllmaktyk.supabase.co/storage/v1/object/public/Product/Lemon%20Tea.png" },
+            { name: "Lychee Tea", image: "https://eiyfpqwedihxllmaktyk.supabase.co/storage/v1/object/public/Product/Lychee%20Tea.png" },
+            { name: "Lemonade", image: "https://eiyfpqwedihxllmaktyk.supabase.co/storage/v1/object/public/Product/Lemonade.png" },
+            { name: "Orange", image: "https://eiyfpqwedihxllmaktyk.supabase.co/storage/v1/object/public/Product/Orange.png" },
+            { name: "Blackcurrant", image: "https://eiyfpqwedihxllmaktyk.supabase.co/storage/v1/object/public/Product/Blackcurrant.png" },
+            { name: "Milo Original", image: "https://eiyfpqwedihxllmaktyk.supabase.co/storage/v1/object/public/Product/Milo%20Original.png" },
+            { name: "Milo Coffe", image: "https://eiyfpqwedihxllmaktyk.supabase.co/storage/v1/object/public/Product/Milo%20Coffe.png" },
+            { name: "Caffe Late", image: "https://eiyfpqwedihxllmaktyk.supabase.co/storage/v1/object/public/Product/Caffe%20Late.png" },
+            { name: "Coffe Gula Aren", image: "https://eiyfpqwedihxllmaktyk.supabase.co/storage/v1/object/public/Product/Coffe%20Gula%20Aren.png" },
+            { name: "Nescafe Ice Roast", image: "https://eiyfpqwedihxllmaktyk.supabase.co/storage/v1/object/public/Product/Nescafe%20Ice%20Roast.png" },
         ],
     });
 
