@@ -13,7 +13,7 @@ export async function POST(request: Request) {
             user.role === UserRole.admin ? "/admin" :
             user.role === UserRole.cashier ? "/kasir" : "/";
         
-        const res = NextResponse.json(redirectTo);
+        const res = NextResponse.json({ redirectTo });
         
         res.cookies.set("token", "logged_in", {
             httpOnly: true,
