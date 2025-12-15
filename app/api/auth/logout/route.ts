@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
-    const res = NextResponse.redirect(new URL("/auth/login", request.url));
+    const res = NextResponse.json({redirectTo: "/auth/login"});
 
     
     res.cookies.set("token", "", {

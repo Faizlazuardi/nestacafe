@@ -4,9 +4,8 @@ import { UserRole } from "@prisma/client";
 
 export async function POST(request: Request) {
     const secureCookie = process.env.NODE_ENV === "production";
-    const form = await request.formData();
-    const name = form.get("name") as string;
-    const password = form.get("password") as string;
+    const data = await request.json();
+    const { name, password } = data;
     
     try {
         const user = await getUserByNameAndPassowrd(name, password);
@@ -14,7 +13,7 @@ export async function POST(request: Request) {
             user.role === UserRole.admin ? "/admin" :
             user.role === UserRole.cashier ? "/kasir" : "/";
         
-        const res = NextResponse.redirect(new URL(redirectTo, request.url));
+        const res = NextResponse.json(redirectTo);
         
         res.cookies.set("token", "logged_in", {
             httpOnly: true,

@@ -6,6 +6,26 @@ import { AuthUser } from '../types/user';
 
 export default function Navigation() {
     const user :AuthUser|null = useUserCookie();
+    
+    const handleLogout = async (e: React.FormEvent<HTMLFormElement>)=>{
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const payload = Object.fromEntries(formData);
+        const res = await fetch('/api/auth/logout',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            }
+        )
+        if (!res.ok) {
+            alert('Login Gagal');
+        }
+        const data = await res.json();
+        window.location.href = data.redirectTo;
+    }
     return (
         <nav className="flex justify-between items-center px-6 py-4 w-full h-24 nav">
             <h1 className="text-2xl md:text-3xl lg:text-4xl">NESTACAFE</h1>
@@ -17,8 +37,8 @@ export default function Navigation() {
                         <span className="font-bold">{user?.name}</span>
                     </div>
                 </div>
-                <form action="/api/auth/logout" method="post">
-                    <button className="p-2 rounded-lg w-fit h-fit hover:cursor-pointer button-logout button-secondary">
+                <form onSubmit={handleLogout}>
+                    <button className="p-2 rounded-lg w-fit h-fit hover:cursor-pointer button-logout button-secondary" type="submit">
                         <LogOut className="w-5 h-fit"/>
                     </button>
                 </form>

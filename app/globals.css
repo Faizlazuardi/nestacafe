@@ -1,13 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #4B5563;
-  --brand-100: #FEE2E2;
-  --brand-200: #DC1F26;
-  --brand-300: #E31E24;
-  --brand-350: #E34C51;
-  --background-100: #FFFBEB;
+  --background: #FFF8E5;
+  --foreground: #000000;
+  --brand-0: #ffffff;
+  --brand-50:  #FFD5D7;
+  --brand-100: #FFB2B6;
+  --brand-200: #FF8F92;
+  --brand-300: #FF6B6E;
+  --brand-400: #FF474A;
+  --brand-500: #D30F19;
+  --brand-600: #B20D15;
+  --brand-700: #8F0A12;
+  --brand-800: #6C0710;
+  --brand-900: #47040C;
+  --brand-950: #2A0206;
+  
   --font-geist-sans: 'Droid Sans', sans-serif;
   --font-geist-mono: 'Droid Sans Mono', monospace;
 }
@@ -32,75 +40,44 @@ body {
   font-family:'Droid Sans', sans-serif;;
 }
 
-.text-secondary{
-  color: var(--brand-200);
-}
-
-.bg-soft {
-  background-color: var(--background-100);
-}
-
-.bg-items {
-  background-color: var(--brand-100);
-}
-
-.bg-items-inactive {
-  background-color: var(--background);
-  opacity: 0.75;
-}
-
-.border-brand-100 {
-  border-color:  var(--brand-100);
-}
-
 .nav {
-  background-color: var(--brand-200);
+  background-color: var(--brand-500);
   color: var(--background);
   font-weight: bold;
 }
 
-.label-user {
-  background-color: var(--brand-350);
-  color: var(--background);
-}
-
-.nav-secondary {
-  background-color: var(--brand-300);
-  color: var(--background);
-}
-
 .button-primary {
-  background-color: var(--brand-300);
+  background-color: var(--brand-500);
   color: var(--background);
 }
 
 .button-secondary {
   background-color: var(--background);
-  color: var(--brand-300);
-  border: 1px solid var(--brand-300);
+  color: var(--brand-500);
+  border: 1px solid var(--brand-500);
 }
 
 table thead {
-  background-color: var(--brand-200);
+  background-color: var(--brand-500);
   color: var(--background);
 }
 
 .sidebar {
-  background-color: var(--brand-300);
-  color: var(--background);
+  background-color: var(--brand-600);
+  color: var(--brand-0);
 }
 .sidebar-active {
-  background-color: var(--background);
-  color: var(--brand-300);
+  background-color: var(--brand-0);
+  color: var(--brand-600);
 }
 
 .icon {
-  background-color: var(--background-100);
-  color: var(--brand-300);
+  background-color: var(--background);
+  color: var(--brand-500);
 }
 
 .stock {
-  background-color: var(--background-100);
+  background-color: var(--background);
 }
 
 .stock h2 {
@@ -108,5 +85,5 @@ table thead {
 }
 
 .stock p {
-  color: var(--brand-300);
+  color: var(--brand-500);
 }

@@ -1,9 +1,29 @@
+"use client"
 export default function Login() {
+    const handleLogin = async (e: React.FormEvent<HTMLFormElement>)=>{
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const payload = Object.fromEntries(formData);
+        const res = await fetch('/api/auth/login',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            }
+        )
+        if (!res.ok) {
+            alert('Login Gagal');
+        }
+        const data = await res.json();
+        window.location.href = data.redirectTo;
+    }
     return (
         <div className="flex flex-col justify-center items-center gap-5 w-screen h-screen">
             <form
                 className="flex flex-col justify-center items-center gap-8 bg-white shadow-xl p-8 rounded-lg"
-                action="/api/auth/login" method="post"
+                onSubmit={handleLogin}
             >
                 <div className="flex flex-col justify-center items-center gap-4">
                     <h1 className="font-bold text-4xl">NESTCAFE</h1>
