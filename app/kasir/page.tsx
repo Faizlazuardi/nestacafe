@@ -2,16 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { PaymentType, } from "@prisma/client";
-import Navigation from "@/app/components/navigation";
-import Cart from "@/app/components/kasir/cart";
-import ConfirmModal from "@/app/components/kasir/confirmModal";
-import PaymentModal from "@/app/components/kasir/paymentModal";
-import SelectedProductModal from "@/app/components/kasir/selectedProductModal";
-import useUserCookie from "@/app/hooks/useUserCookie";
-import { useModals } from "../hooks/useModals";
-import { Product } from "@/app/types/product";
-import { CartItem } from "@/app/types/cart";
-import { AuthUser } from "../types/user";
+import { useSession } from "next-auth/react";
+import Navigation from "@/components/navigation";
+import Cart from "@/components/kasir/cart";
+import ConfirmModal from "@/components/kasir/confirmModal";
+import PaymentModal from "@/components/kasir/paymentModal";
+import SelectedProductModal from "@/components/kasir/selectedProductModal";
+import { useModals } from "@/hooks/useModals";
+import { Product } from "@/types/product";
+import { CartItem } from "@/types/cart";
+import { AuthUser } from "@/types/user";
 
 export default function KasirPage() {
     const { modals:confirmModal, open:confirmOpen, close:confirmClose } = useModals();
@@ -22,7 +22,9 @@ export default function KasirPage() {
     const [productSelected, setProductSelected] = useState<Product | null>(null)
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [paymentMethod, setPaymentMethod] = useState< PaymentType | null>(null);
-    const authUser: AuthUser|null = useUserCookie();
+
+    const { data: session } = useSession();
+    const authUser = session?.user as AuthUser | null;
     
     const handleTransaction = async () => {
         const totalPrice = cartItems.reduce((sum, item) => {
@@ -54,7 +56,7 @@ export default function KasirPage() {
             setCartItems([]);
             setPaymentMethod(null);
         } catch(error: any){
-            alert(error.message);
+            console.error(error);
         }
     }
     
@@ -86,7 +88,7 @@ export default function KasirPage() {
     useEffect(() => {
         async function fetchProducts() {
             try {
-                const res = await fetch('/api/produk');
+                const res = await fetch('/api/product');
                 const data = await res.json();
                 
                 setProducts(
@@ -120,7 +122,7 @@ export default function KasirPage() {
                                         productOpen();
                                     }}
                                 >
-                                    <img src={product.image} alt={product.name} className="rounded-t-lg w-fit h-20 object-cover"/>
+                                    <img src={product.image} alt={product.name} height={80} width={80} className="object-cover"/>
                                     <div className="flex flex-col gap-2 p-4">
                                         <span className="h-full font-bold text-lg text-center">{product.name}</span>
                                     </div>

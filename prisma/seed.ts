@@ -38,24 +38,24 @@ async function main() {
 
     const products = await prisma.product.createMany({
         data: [
-            { productId: getBaseId("Lemon Tea"), variant: "Normal", price: 5000 },
-            { productId: getBaseId("Lychee Tea"), variant: "Normal", price: 5000 },
-            { productId: getBaseId("Lemonade"), variant: "Normal", price: 5000 },
-            { productId: getBaseId("Orange"), variant: "Normal", price: 5000 },
-            { productId: getBaseId("Blackcurrant"), variant: "Normal", price: 5000 },
+            { baseId: getBaseId("Lemon Tea"), variant: "Normal", price: 5000 },
+            { baseId: getBaseId("Lychee Tea"), variant: "Normal", price: 5000 },
+            { baseId: getBaseId("Lemonade"), variant: "Normal", price: 5000 },
+            { baseId: getBaseId("Orange"), variant: "Normal", price: 5000 },
+            { baseId: getBaseId("Blackcurrant"), variant: "Normal", price: 5000 },
 
-            { productId: getBaseId("Milo Original"), variant: "Normal", price: 10000 },
-            { productId: getBaseId("Milo Coffe"), variant: "Normal", price: 12000 },
+            { baseId: getBaseId("Milo Original"), variant: "Normal", price: 10000 },
+            { baseId: getBaseId("Milo Coffe"), variant: "Normal", price: 12000 },
 
-            { productId: getBaseId("Caffe Late"), variant: "Normal", price: 9000 },
-            { productId: getBaseId("Caffe Late"), variant: "Strong", price: 11000 },
+            { baseId: getBaseId("Caffe Late"), variant: "Normal", price: 9000 },
+            { baseId: getBaseId("Caffe Late"), variant: "Strong", price: 11000 },
 
-            { productId: getBaseId("Coffe Gula Aren"), variant: "Normal", price: 10000 },
-            { productId: getBaseId("Coffe Gula Aren"), variant: "Strong", price: 12000 },
+            { baseId: getBaseId("Coffe Gula Aren"), variant: "Normal", price: 10000 },
+            { baseId: getBaseId("Coffe Gula Aren"), variant: "Strong", price: 12000 },
 
-            { productId: getBaseId("Nescafe Ice Roast"), variant: "Shoot_X1", price: 5000 },
-            { productId: getBaseId("Nescafe Ice Roast"), variant: "Shoot_X2", price: 7000 },
-            { productId: getBaseId("Nescafe Ice Roast"), variant: "Shoot_X3", price: 9000 },
+            { baseId: getBaseId("Nescafe Ice Roast"), variant: "Shoot_X1", price: 5000 },
+            { baseId: getBaseId("Nescafe Ice Roast"), variant: "Shoot_X2", price: 7000 },
+            { baseId: getBaseId("Nescafe Ice Roast"), variant: "Shoot_X3", price: 9000 },
         ],
     });
 

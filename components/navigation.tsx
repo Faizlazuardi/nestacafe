@@ -1,31 +1,13 @@
 "use client"
-import { LogOut, User } from 'lucide-react';
-import useUserCookie from '../hooks/useUserCookie';
-import { AuthUser } from '../types/user';
 
+import { LogOut, User } from 'lucide-react';
+import { AuthUser } from '@/types/user';
+import { useSession, signOut } from 'next-auth/react';
 
 export default function Navigation() {
-    const user :AuthUser|null = useUserCookie();
+    const { data: session } = useSession();
+    const user = session?.user as AuthUser | undefined;
     
-    const handleLogout = async (e: React.FormEvent<HTMLFormElement>)=>{
-        e.preventDefault();
-        const formData = new FormData(e.currentTarget);
-        const payload = Object.fromEntries(formData);
-        const res = await fetch('/api/auth/logout',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload)
-            }
-        )
-        if (!res.ok) {
-            alert('Login Gagal');
-        }
-        const data = await res.json();
-        window.location.href = data.redirectTo;
-    }
     return (
         <nav className="flex justify-between items-center px-6 py-4 w-full h-24 nav">
             <h1 className="text-2xl md:text-3xl lg:text-4xl">NESTACAFE</h1>
@@ -37,7 +19,11 @@ export default function Navigation() {
                         <span className="font-bold">{user?.name}</span>
                     </div>
                 </div>
-                <form onSubmit={handleLogout}>
+                <form
+                    action={async () => {
+                        await signOut()
+                    }}
+                >
                     <button className="p-2 rounded-lg w-fit h-fit hover:cursor-pointer button-logout button-secondary" type="submit">
                         <LogOut className="w-5 h-fit"/>
                     </button>

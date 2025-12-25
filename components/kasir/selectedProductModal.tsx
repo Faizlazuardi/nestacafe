@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { Minus, Plus } from "lucide-react";
-import { Product, ProductVariant } from "@/app/types/product"
-import { CartItem } from "@/app/types/cart";
-import { VariantLabel } from "@/app/utils/variantlabel";
+import { Product, ProductVariant } from "@/types/product"
+import { CartItem } from "@/types/cart";
+import { VariantLabel } from "@/utils/variantlabel";
 
 export default function SelectedProductModal({
     productSelected,
@@ -27,7 +27,7 @@ export default function SelectedProductModal({
                 </div>
                 <div className="flex flex-col items-center gap-8 bg-white p-6">
                     <div className="flex flex-col items-center gap-5">
-                        <img src={productSelected?.image} alt={productSelected?.name} className="w-fit h-20" />
+                        <img src={productSelected!.image} alt={productSelected!.name} className="w-fit h-20" />
                         <span className="font-bold text-xl">{productSelected?.name}</span>
                     </div>
                     {

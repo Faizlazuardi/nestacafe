@@ -1,4 +1,4 @@
-import { CartItem } from "@/app/types/cart";
+import { CartItem } from "@/types/cart";
 import { PaymentType } from "@prisma/client";
 import { WalletMinimal } from "lucide-react";
 

@@ -1,36 +1,30 @@
+import { auth } from "@/auth";
 import { UserRole } from "@prisma/client";
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-export function proxy(request: NextRequest) {
-    const token = request.cookies.get("token")?.value;
-    const userCookie = request.cookies.get("user")?.value;
-    const url = request.nextUrl;
-    const pathname = url.pathname;
-    
-    let user: { role: string } | null = null;
-    if (userCookie) {
-        try {
-            user = JSON.parse(decodeURIComponent(userCookie));
-        } catch {
-            user = null;
-        }
+export default auth(function proxy(req) {
+    const { pathname } = req.nextUrl;
+    const session = req.auth;
+
+    if (!session && !pathname.startsWith("/auth/login")) {
+        return NextResponse.redirect(new URL("/auth/login", req.url));
     }
-    
-    if (!token && !pathname.startsWith("/auth/login")) {
-        return NextResponse.redirect(new URL("/auth/login", request.url));
+
+    if (!session) return NextResponse.next();
+
+    const role = session.user?.role;
+
+    if (role === UserRole.admin && !pathname.startsWith("/admin")) {
+        return NextResponse.redirect(new URL("/admin", req.url));
     }
-    
-    if (!user) {
-        return NextResponse.next();
+
+    if (role === UserRole.cashier && !pathname.startsWith("/kasir")) {
+        return NextResponse.redirect(new URL("/kasir", req.url));
     }
-    
-    if (user.role === UserRole.admin && !pathname.startsWith("/admin")) {
-        return NextResponse.redirect(new URL("/admin", request.url));
-    }
-    else if (user.role === UserRole.cashier && !pathname.startsWith("/kasir")) {
-        return NextResponse.redirect(new URL("/kasir", request.url));
-    }
-}
+
+    return NextResponse.next();
+});
+
 
 export const config = {
     matcher: [

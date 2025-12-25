@@ -1,23 +1,16 @@
 "use client"
+
+import { signIn } from "next-auth/react";
+
 export default function Login() {
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
-        const formData = new FormData(e.currentTarget);
-        const payload = Object.fromEntries(formData);
-        const res = await fetch('/api/auth/login',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload)
-            }
-        )
-        if (!res.ok) {
-            alert('Login Gagal');
-        }
-        const data = await res.json();
-        window.location.href = data.redirectTo;
+        const formData = new FormData(e.currentTarget)
+        await signIn("credentials", {
+            name: formData.get("name"),
+            password: formData.get("password"),
+            redirect: false,
+        });
     }
     return (
         <div className="flex flex-col justify-center items-center gap-5 w-screen h-screen">

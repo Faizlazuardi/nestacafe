@@ -1,4 +1,4 @@
-import { createTransaction } from "@/app/service/transaction.service";
+import { createTransaction } from "@/services/transaction.service";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request): Promise<Response> {

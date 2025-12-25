@@ -1,4 +1,4 @@
-import prisma from "../lib/prisma";
+import prisma from "@/lib/prisma";
 
 export async function createTransaction(data: any) {
     const {
@@ -12,7 +12,7 @@ export async function createTransaction(data: any) {
             cashierId: BigInt(cashierId),
             paymentType,
             totalPrice,
-            transactions: {
+            details: {
                 create: products.map((item: any) => ({
                     productId: BigInt(item.productId),
                     quantity: item.quantity,
