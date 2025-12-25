@@ -3,20 +3,17 @@
 import { signIn } from "next-auth/react";
 
 export default function Login() {
-    const handleLogin = async (e: React.FormEvent<HTMLFormElement>)=>{
-        e.preventDefault();
-        const formData = new FormData(e.currentTarget)
-        await signIn("credentials", {
-            name: formData.get("name"),
-            password: formData.get("password"),
-            redirect: false,
-        });
-    }
     return (
         <div className="flex flex-col justify-center items-center gap-5 w-screen h-screen">
             <form
                 className="flex flex-col justify-center items-center gap-8 bg-white shadow-xl p-8 rounded-lg"
-                onSubmit={handleLogin}
+                action={async (formData) => {
+                    await signIn("credentials", {
+                        name: formData.get("name"),
+                        password: formData.get("password"),
+                        callbackUrl: "/",
+                    })
+                }}
             >
                 <div className="flex flex-col justify-center items-center gap-4">
                     <h1 className="font-bold text-4xl">NESTCAFE</h1>
