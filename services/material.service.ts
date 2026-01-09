@@ -13,7 +13,7 @@ export async function getAllMaterials() {
     });
     return materials.map(material => ({
         ...material,
-        id: material.id.toString(),
+        id: String(material.id),
     }));
 }
 
@@ -23,15 +23,26 @@ export async function createMaterial(data: { name: string; type: MaterialType; q
     });
 }
 
-export async function updateMaterial(id: bigint, data: { name: string; type: MaterialType; quantity: number }) {
+export async function updateMaterial(id: bigint, data: { quantity: number }) {
     return await prisma.material.update({
         where: { id },
-        data,
+        data: {
+            quantity: { increment: data.quantity }
+        },
     });
 }
 
 export async function deleteMaterial(id: bigint) {
-    return await prisma.material.delete({
+    return await prisma.material.update({
         where: { id },
+        data:{
+            isDeleted: true
+        }
     });
 }
+
+export async function getTotalMaterials() {
+    return prisma.material.count({
+        where: { isDeleted: false },
+    });
+};

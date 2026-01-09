@@ -1,14 +1,22 @@
 import { VariantOption } from "@prisma/client"
 
+export interface MaterialUsage {
+    id: string;
+    name: string;
+    type: string;
+    quantityUsed: number;
+}
+
 export interface ProductVariant {
     id: string;
     price: number;
-    variant: VariantOption;
+    option: VariantOption;
+    materials?: MaterialUsage[];
 }
 
 export interface Product {
     id: string;
     name: string;
     image: string;
-    products: ProductVariant[];
+    variants: ProductVariant[];
 }

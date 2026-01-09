@@ -4,54 +4,49 @@ import { signIn } from "next-auth/react";
 
 export default function Login() {
     return (
-        <div className="flex flex-col justify-center items-center gap-5 w-screen h-screen">
-            <form
-                className="flex flex-col justify-center items-center gap-8 bg-white shadow-xl p-8 rounded-lg"
-                action={async (formData) => {
-                    await signIn("credentials", {
-                        name: formData.get("name"),
-                        password: formData.get("password"),
-                        callbackUrl: "/",
-                    })
-                }}
-            >
+        <div className="fixed inset-0 flex justify-center items-center">
+            <div className="bg-white shadow-xl p-8 rounded-lg w-lg max-h-[90vh] overflow-auto">
                 <div className="flex flex-col justify-center items-center gap-4">
-                    <h1 className="font-bold text-4xl">NESTCAFE</h1>
-                    <h1 className="font-thin text-xl">Enter your credentials to access the system</h1>
+                    <h1 className="font-bold text-4xl text-center">NESTCAFE</h1>
+                    <h1 className="font-thin text-xl text-center">Enter your credentials to access the system</h1>
                 </div>
-                <div className="flex flex-col gap-5">
-                    <div className="flex flex-col gap-2.5">
-                        <label className="font-bold text-xl" htmlFor="name">
-                            Nama
-                        </label>
+                <form className="flex flex-col gap-5 w-full"
+                    action={async (formData) => {
+                        await signIn("credentials", {
+                            name: formData.get("name"),
+                            password: formData.get("password"),
+                            callbackUrl: "/",
+                        })
+                    }}
+                >
+                    <label className="flex flex-col gap-2 font-bold text-xl">
+                        <span>Nama</span>
                         <input
-                            className="opacity-50 p-2 border rounded-md w-110 h-10"
+                            className="opacity-50 p-2 border rounded-md w-full h-10"
                             type="text"
                             name="name"
                             id="name"
                             placeholder="Masukkan Nama"
                         />
-                    </div>
-                    <div className="flex flex-col gap-2.5">
-                        <label className="font-bold text-xl" htmlFor="password">
-                            Password
-                        </label>
+                    </label>
+                    <label className="flex flex-col gap-2 font-bold text-xl">
+                        <span>Password</span>
                         <input
-                            className="opacity-50 p-2 border rounded-md w-110 h-10"
+                            className="opacity-50 p-2 border rounded-md w-full h-10"
                             type="password"
                             name="password"
                             id="password"
                             placeholder="Masukkan Password"
                         />
-                    </div>
-                </div>
-                <button
-                    className="py-3 rounded-md w-full text-xl hover:cursor-pointer button-primary"
-                    type="submit"
-                >
-                    Login
-                </button>
-            </form>
+                    </label>
+                    <button
+                        className="py-3 rounded-md w-full text-xl hover:cursor-pointer button-primary"
+                        type="submit"
+                    >
+                        Login
+                    </button>
+                </form>
+            </div>
         </div>
     );
 }

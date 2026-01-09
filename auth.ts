@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials"
 import { authenticateUser } from "@/services/auth.service";
+import { UserRole } from "@prisma/client";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: [
@@ -21,7 +22,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 );
                 
                 return {
-                    id: user.id.toString(),
+                    id: String(user.id),
                     name: user.name,
                     role: user.role,
                 };
@@ -31,13 +32,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
+                token.id = user.id
+                token.name = user.name
                 token.role = user.role;
             }
             return token;
         },
         async session({ session, token }) {
             if (token) {
-                session.user.role = token.role as any;
+                session.user.id = token.id as string
+                session.user.name = token.name as string
+                session.user.role = token.role as UserRole;
             }
             return session;
         }

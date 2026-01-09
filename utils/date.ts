@@ -1,15 +1,22 @@
-export function getStartDate(type: 'Hari' | 'Bulan' | 'Tahun') {
+export const TIME_RANGES = ['Hari', 'Bulan', 'Tahun'] as const;
+export type TimeRange = typeof TIME_RANGES[number];
+
+export function getStartDate(type: TimeRange): Date {
     const date = new Date();
 
-    if (type === 'Hari') {
-        date.setHours(0, 0, 0, 0);
+    switch (type) {
+        case 'Hari':
+            date.setHours(0, 0, 0, 0);
+            break;
+        
+        case 'Bulan':
+            date.setMonth(date.getMonth() - 1);
+            break;
+        
+        case 'Tahun':
+            date.setFullYear(date.getFullYear() - 1);
+            break;
     }
-    if (type === 'Bulan') {
-        date.setMonth(date.getMonth() - 1);
-    }
-    if (type === 'Tahun') {
-        date.setFullYear(date.getFullYear() - 1);
-    }
-
+    
     return date;
 }

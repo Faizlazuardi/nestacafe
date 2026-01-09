@@ -1,8 +1,8 @@
-import { auth } from "@/auth";
+import { auth as middleware } from "@/auth";
 import { UserRole } from "@prisma/client";
 import { NextResponse } from "next/server";
 
-export default auth(function proxy(req) {
+export default middleware(function proxy(req) {
     const { pathname } = req.nextUrl;
     const session = req.auth;
 

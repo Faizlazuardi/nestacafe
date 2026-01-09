@@ -37,78 +37,88 @@ enum PaymentType {
   qris
 }
 
+model ProductBase {
+  id        BigInt           @id @default(autoincrement())
+  image     String
+  name      String
+  isDeleted Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  variants  ProductVariant[]
+}
+
+model ProductVariant {
+  id                 BigInt              @id @default(autoincrement())
+  baseId             BigInt
+  base               ProductBase         @relation(fields: [baseId], references: [id])
+  option             VariantOption
+  price              Int
+  isDeleted          Boolean             @default(false)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  productMaterials   ProductMaterial[]
+  transactionDetails TransactionDetail[]
+}
+
 model Material {
   id               BigInt            @id @default(autoincrement())
   name             String
   type             MaterialType
   quantity         Int
+  isDeleted        Boolean           @default(false)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   productMaterials ProductMaterial[]
 }
 
-model ProductBase {
-  id        BigInt    @id @default(autoincrement())
-  image     String
-  name      String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  products  Product[]
-}
-
-model Product {
-  id                 BigInt              @id @default(autoincrement())
-  baseId             BigInt
-  base               ProductBase         @relation(fields: [baseId], references: [id])
-  variant            VariantOption
-  price              Int
-  productMaterials   ProductMaterial[]
-  transactionDetails TransactionDetail[]
-}
-
 model ProductMaterial {
-  id           BigInt   @id @default(autoincrement())
+  id           BigInt         @id @default(autoincrement())
   productId    BigInt
-  product      Product  @relation(fields: [productId], references: [id])
+  product      ProductVariant @relation(fields: [productId], references: [id])
   materialId   BigInt
-  material     Material @relation(fields: [materialId], references: [id])
+  material     Material       @relation(fields: [materialId], references: [id])
   quantityUsed Int
+  isDeleted    Boolean        @default(false)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }
 
 model User {
-  id           BigInt        @id @default(autoincrement())
-  name         String        @unique
-  password     String
-  role         UserRole
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  transactions Transaction[]
+  id            BigInt          @id @default(autoincrement())
+  name          String          @unique
+  password      String
+  role          UserRole
+  isActive      Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  transactions  Transaction[]
   accounts      Account[]
   sessions      Session[]
   Authenticator Authenticator[]
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             BigInt
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String? @db.Text
-  access_token       String? @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String? @db.Text
-  session_state      String?
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String  @id @default(cuid())
+  userId            BigInt
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([provider, providerAccountId])
 }
 
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
-  userId       BigInt   
+  userId       BigInt
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -117,6 +127,7 @@ model VerificationToken {
   identifier String
   token      String
   expires    DateTime
+
   @@unique([identifier, token])
 }
 
@@ -129,7 +140,8 @@ model Authenticator {
   credentialDeviceType String
   credentialBackedUp   Boolean
   transports           String?
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                 User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@id([userId, credentialID])
 }
 
@@ -138,18 +150,18 @@ model Transaction {
   cashierId   BigInt
   cashier     User                @relation(fields: [cashierId], references: [id])
   paymentType PaymentType
-  totalPrice  Int
+  total       Int
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
   details     TransactionDetail[]
 }
 
 model TransactionDetail {
-  id            BigInt      @id @default(autoincrement())
-  transactionId BigInt      
-  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  id            BigInt         @id @default(autoincrement())
+  transactionId BigInt
+  transaction   Transaction    @relation(fields: [transactionId], references: [id])
   productId     BigInt
-  product       Product     @relation(fields: [productId], references: [id])
+  product       ProductVariant @relation(fields: [productId], references: [id])
   quantity      Int
   subtotal      Int
 }

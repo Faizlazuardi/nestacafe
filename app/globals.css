@@ -76,10 +76,6 @@ table thead {
   color: var(--brand-500);
 }
 
-.stock {
-  background-color: var(--background);
-}
-
 .stock h2 {
   color: var(--foreground);
 }
