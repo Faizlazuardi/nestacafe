@@ -14,11 +14,11 @@ export default middleware(function proxy(req) {
 
     const role = session.user?.role;
 
-    if (role === UserRole.admin && !pathname.startsWith("/admin")) {
+    if (role === UserRole.Admin && !pathname.startsWith("/admin")) {
         return NextResponse.redirect(new URL("/admin", req.url));
     }
 
-    if (role === UserRole.cashier && !pathname.startsWith("/kasir")) {
+    if (role === UserRole.Cashier && !pathname.startsWith("/kasir")) {
         return NextResponse.redirect(new URL("/kasir", req.url));
     }
 

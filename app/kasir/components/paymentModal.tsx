@@ -59,13 +59,13 @@ export default function PaymentModal({
                             <button
                                 className={`
                                     flex flex-col items-center gap-2 p-4 w-full border border-(--brand-500) text-(--brand-700) rounded-lg 
-                                    ${paymentMethod === PaymentType.qris ? 'bg-(--brand-100)' : ''} 
+                                    ${paymentMethod === PaymentType.QRIS ? 'bg-(--brand-100)' : ''} 
                                 `}
                                 onClick={ () => {
-                                    if (paymentMethod === PaymentType.qris) {
+                                    if (paymentMethod === PaymentType.QRIS) {
                                         setPaymentMethod(null)
                                     } else {
-                                        setPaymentMethod(PaymentType.qris)
+                                        setPaymentMethod(PaymentType.QRIS)
                                     }
                                 }}
                             >
@@ -75,14 +75,14 @@ export default function PaymentModal({
                             <button
                                 className={`
                                     flex flex-col items-center gap-2 p-4 w-full border border-(--brand-500) text-(--brand-700) rounded-lg 
-                                    ${paymentMethod === PaymentType.cash ? 'bg-(--brand-100)' : ''} 
+                                    ${paymentMethod === PaymentType.CASH ? 'bg-(--brand-100)' : ''} 
                                 `}
                                 onClick={
                                     () => {
-                                        if (paymentMethod === PaymentType.cash) {
+                                        if (paymentMethod === PaymentType.CASH) {
                                             setPaymentMethod(null)
                                         } else {
-                                            setPaymentMethod(PaymentType.cash)
+                                            setPaymentMethod(PaymentType.CASH)
                                         }
                                     }
                                 }
@@ -93,7 +93,7 @@ export default function PaymentModal({
                         </div>
                     </div>
                     {
-                        paymentMethod === PaymentType.cash ? (
+                        paymentMethod === PaymentType.CASH ? (
                             <>
                                 <div className="flex flex-col gap-4">
                                     <span className="font-bold text-xl">Pembayaran Tunai</span>
@@ -149,8 +149,7 @@ export default function PaymentModal({
                                     }
                                 </div>
                             </>
-                        ) :
-                        paymentMethod === PaymentType.qris ? (
+                        ) : paymentMethod === PaymentType.QRIS ? (
                             <div className="flex gap-4">
                                 <button
                                     className="bg-gray-100 py-4 border border-black rounded-xl w-full"

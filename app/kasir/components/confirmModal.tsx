@@ -53,7 +53,7 @@ export default function ConfirmModal({
                     <div className="flex flex-col gap-4 bg-background p-6 rounded-2xl w-full">
                         <span className="font-semibold">Informasi Pembayaran</span>
                         {
-                            paymentMethod === "cash" ? (
+                            paymentMethod === "CASH" ? (
                                 <>
                                     <div className="flex flex-col gap-2 pb-2 border-b-2">
                                         <div className="flex justify-between items-center">
@@ -74,7 +74,7 @@ export default function ConfirmModal({
                                     </div>
                                 </>
                             ) :
-                            paymentMethod === "qris" ? (
+                            paymentMethod === "QRIS" ? (
                                 <div className="flex justify-between items-center">
                                     <span>Metode Pembayaran</span>
                                     <span className="flex gap-2">

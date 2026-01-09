@@ -18,7 +18,7 @@ function formatQuantity(quantity: number, type: string): string {
 }
 
 export default function MaterialList({ materials }: {materials: Material[]}) {
-    const {modals: materialModal, open: onOpenMaterialModal, close: onCloseMaterialModal} = useModals()
+    const {modals: materialModal, open: handleOpenMaterialModal, close: handleCloseMaterialModal} = useModals()
     const [action, setAction] = useState<"PUT" | "POST" | "DELETE" | null>(null);
     const [selectedMaterial, setSelectedMaterial] = useState<Material | undefined>(undefined);
     
@@ -30,7 +30,7 @@ export default function MaterialList({ materials }: {materials: Material[]}) {
                     objectName="Bahan Baku" 
                     action={()=>{
                         setAction("POST");
-                        onOpenMaterialModal();
+                        handleOpenMaterialModal();
                     }}
                 />
             </div>
@@ -48,7 +48,7 @@ export default function MaterialList({ materials }: {materials: Material[]}) {
                                     action={()=>{
                                         setSelectedMaterial(material)
                                         setAction("PUT");
-                                        onOpenMaterialModal();
+                                        handleOpenMaterialModal();
                                     }}
                                 />
                                 <button className="flex items-center gap-2 p-2 rounded-lg w-fit h-fit button-primary">
@@ -61,7 +61,7 @@ export default function MaterialList({ materials }: {materials: Material[]}) {
             </div>
             {
                 materialModal && (
-                    <UpsertModal objectName={"Bahan Baku"} method={action} onCloseModal={onCloseMaterialModal} material={selectedMaterial}/>
+                    <UpsertModal objectName={"Bahan Baku"} method={action} onCloseModal={handleCloseMaterialModal} material={selectedMaterial}/>
                 )
             }
         </>

@@ -5,10 +5,10 @@ CREATE TYPE "MaterialType" AS ENUM ('Liquid', 'Solid');
 CREATE TYPE "VariantOption" AS ENUM ('Normal', 'Strong', 'Shoot_X1', 'Shoot_X2', 'Shoot_X3');
 
 -- CreateEnum
-CREATE TYPE "UserRole" AS ENUM ('admin', 'cashier');
+CREATE TYPE "UserRole" AS ENUM ('Admin', 'Cashier');
 
 -- CreateEnum
-CREATE TYPE "PaymentType" AS ENUM ('cash', 'qris');
+CREATE TYPE "PaymentType" AS ENUM ('CASH', 'QRIS');
 
 -- CreateTable
 CREATE TABLE "ProductBase" (

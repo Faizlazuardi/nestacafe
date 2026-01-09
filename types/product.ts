@@ -20,3 +20,12 @@ export interface Product {
     image: string;
     variants: ProductVariant[];
 }
+
+export interface purchasedProduct {
+    id: string
+    name: string
+    option: VariantOption
+    quantity: number
+    price: number
+    subtotal: number
+}

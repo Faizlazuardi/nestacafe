@@ -6,11 +6,11 @@ import { formatIDR } from "@/utils/formatIDR";
 export default function Cart({
     cartItems,
     removeFromCart,
-    togglePaymentModal,
+    onOpenPaymentModal,
 }: {
     cartItems: CartItem[],
     removeFromCart: (product: CartItem) => void,
-    togglePaymentModal: () => void,
+    onOpenPaymentModal: () => void,
 }) {
     const total = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
@@ -66,7 +66,7 @@ export default function Cart({
                         className="flex justify-center items-center gap-2 py-3 rounded-xl w-full text-sm md:text-base lg:text-xl hover:cursor-pointer button-primary"
                         type="button"
                         onClick={() => {
-                            togglePaymentModal();
+                            onOpenPaymentModal();
                         }}
                     >
                         Bayar

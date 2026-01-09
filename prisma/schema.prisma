@@ -28,13 +28,13 @@ enum VariantOption {
 }
 
 enum UserRole {
-  admin
-  cashier
+  Admin
+  Cashier
 }
 
 enum PaymentType {
-  cash
-  qris
+  CASH
+  QRIS
 }
 
 model ProductBase {

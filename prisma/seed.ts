@@ -9,7 +9,7 @@ async function main() {
             create: {
             name: 'Admin99',
             password: await bcrypt.hash('Admin99',10),
-            role: UserRole.admin
+            role: UserRole.Admin
         },
     })
 }

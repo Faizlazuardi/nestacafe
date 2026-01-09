@@ -28,7 +28,7 @@ export async function createUser(name: string, password: string) {
         data: {
             name: name,
             password: hashedPassword,
-            role: UserRole.cashier
+            role: UserRole.Cashier
         },
     });
     return {

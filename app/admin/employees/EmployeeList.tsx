@@ -8,7 +8,7 @@ import { PencilLine, Trash2 } from "lucide-react"
 import { useModals } from "@/hooks/useModals";
 
 export default function EmployeeList({ users }:{users: User[]}) {
-    const {modals: employeeModal, open: onOpenEmployeeModal, close: onCloseEmployeeModal} = useModals()
+    const {modals: employeeModal, open: handleOpenEmployeeModal, close: handleCloseEmployeeModal} = useModals()
     const [action, setAction] = useState<"PUT" | "POST" | "DELETE" | null>(null);
     const [selectedUser, setSelectedUser] = useState<User | undefined>(undefined)
     
@@ -20,7 +20,7 @@ export default function EmployeeList({ users }:{users: User[]}) {
                     objectName="Karyawan" 
                     action={()=>{
                         setAction("POST");
-                        onOpenEmployeeModal();
+                        handleOpenEmployeeModal();
                     }}
                 />
             </div>
@@ -45,7 +45,7 @@ export default function EmployeeList({ users }:{users: User[]}) {
                                         <button onClick={() => {
                                             setSelectedUser(user)
                                             setAction("PUT");
-                                            onOpenEmployeeModal();
+                                            handleOpenEmployeeModal();
                                         }}>
                                             <PencilLine/>
                                         </button>
@@ -62,7 +62,7 @@ export default function EmployeeList({ users }:{users: User[]}) {
             </table>
             {
                 employeeModal && (
-                    <UpsertModal objectName={"Karyawan"} method={action} onCloseModal={onCloseEmployeeModal} user={selectedUser}/>
+                    <UpsertModal objectName={"Karyawan"} method={action} onCloseModal={handleCloseEmployeeModal} user={selectedUser}/>
                 )
             }
         </>

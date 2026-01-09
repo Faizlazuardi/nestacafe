@@ -1,12 +1,15 @@
 "use client"
 
+import { useModals } from "@/hooks/useModals";
 import { Transaction } from "@/types/transaction";
 import { formatIDR } from "@/utils/formatIDR";
 import { useEffect, useState } from "react";
+import TransactionModal from "../components/modal/transactionModal";
 
 export default function TransacttionPage() {
     const [transactions, setTransactions] = useState<Transaction[] | null>(null)
-    
+    const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
+    const {modals:transactionModal, open: handleOpenTransactionModal, close:handleCloseTransactionModal} = useModals()
     useEffect(() => {
         const fetchTransaction = async () => {
             const res = await fetch('/api/transaction')
@@ -15,10 +18,11 @@ export default function TransacttionPage() {
         }
         fetchTransaction()
     },[])
+    
     return (
         <>
             <h1 className="font-bold text-2xl">Transaksi</h1>
-            <table className="w-full">
+            <table className="bg-white w-full">
                 <thead>
                     <tr>
                         <th className="p-4 text-xs md:text-sm lg:text-base">ID</th>
@@ -38,7 +42,15 @@ export default function TransacttionPage() {
                                     <td className="p-4 h-full">{transaction.cashier.name}</td>
                                     <td className="p-4 h-full">{formatIDR(transaction.total)}</td>
                                     <td className="flex justify-center p-4 h-full">
-                                        <button className="shadow px-2 py-1 rounded-md hover:cursor-pointer button-primary">Detail</button>
+                                        <button 
+                                            className="shadow px-4 py-1 rounded-md hover:cursor-pointer button-primary" 
+                                            onClick={()=>{
+                                                setSelectedTransaction(transaction)
+                                                handleOpenTransactionModal()
+                                            }}
+                                        >
+                                            Detail
+                                        </button>
                                     </td>
                                 </tr>
                             )
@@ -46,6 +58,11 @@ export default function TransacttionPage() {
                     }
                 </tbody>
             </table>
+            {
+                transactionModal && (
+                    <TransactionModal selectedTransaction={selectedTransaction!} onCloseTransactionModal={handleCloseTransactionModal}/>
+                )
+            }
         </>
     );
 }

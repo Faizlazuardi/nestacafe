@@ -14,9 +14,9 @@ import { CartItem } from "@/types/cart";
 import { User } from "@/types/user";
 
 export default function KasirPage() {
-    const { modals:productModal, open:productOpen, close:productClose } = useModals();
-    const { modals:paymentModal, open:paymentOpen, close:paymentClose } = useModals();
-    const { modals:confirmModal, open:confirmOpen, close:confirmClose } = useModals();
+    const { modals:productModal, open:handleOpenProductModal, close:handleCloseProductModal } = useModals();
+    const { modals:paymentModal, open:handleOpenpaymentModal, close:handleClosePaymentModal } = useModals();
+    const { modals:confirmModal, open:handleOpenConfirmModal, close:handleCloseConfirmModal } = useModals();
     
     const [products, setProducts] = useState<Product[]>([]);
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -114,7 +114,7 @@ export default function KasirPage() {
                                         className="flex flex-col items-center bg-(--brand-50) p-5 rounded-xl w-full h-full" //
                                         onClick={() => {
                                             setProductSelected(product);
-                                            productOpen();
+                                            handleOpenProductModal();
                                         }}
                                     >
                                         <img src={product.image} alt={product.name} height={80} width={80} className="object-cover"/>
@@ -129,7 +129,7 @@ export default function KasirPage() {
                             <Cart
                                 cartItems={cartItems}
                                 removeFromCart={removeFromCart}
-                                togglePaymentModal={paymentOpen}
+                                onOpenPaymentModal={handleOpenpaymentModal}
                             />
                         </div>
                     </div>
@@ -140,7 +140,7 @@ export default function KasirPage() {
                     <SelectedProductModal
                         productSelected={productSelected}
                         addToCart={addToCart}
-                        onCloseProductModal={productClose}
+                        onCloseProductModal={handleCloseProductModal}
                     />
                 )
             }
@@ -150,8 +150,8 @@ export default function KasirPage() {
                         cartItems={cartItems} 
                         paymentMethod={paymentMethod}
                         setPaymentMethod={setPaymentMethod}
-                        onClosePaymentModal={paymentClose}
-                        onOpenConfirmModal={confirmOpen}
+                        onClosePaymentModal={handleClosePaymentModal}
+                        onOpenConfirmModal={handleOpenConfirmModal}
                         cashAmount={cashAmount}
                         setCashAmount={setCashAmount}
                     />
@@ -163,8 +163,8 @@ export default function KasirPage() {
                         cartItems={cartItems} 
                         paymentMethod={paymentMethod}
                         onConfirm={handleTransaction}
-                        onCloseConfirmModal={confirmClose} 
-                        onOpenpaymentModal={paymentOpen}
+                        onCloseConfirmModal={handleCloseConfirmModal} 
+                        onOpenpaymentModal={handleOpenpaymentModal}
                         cashAmount={cashAmount}
                     />
                 )

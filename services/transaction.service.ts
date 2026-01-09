@@ -33,6 +33,7 @@ export async function getDetailTransaction(id: bigint) {
                 select: {
                     id: true,
                     option: true,
+                    price: true,
                     base: {
                         select: {
                             name: true
@@ -42,6 +43,14 @@ export async function getDetailTransaction(id: bigint) {
             }
         }
     })
+    return details.map(detail => ({
+        id: String(detail.product.id),
+        name: detail.product.base.name,
+        option: detail.product.option,
+        quantity: detail.quantity,
+        price: detail.product.price,
+        subtotal: detail.subtotal
+    }))
 }
 
 export async function createTransaction(data: any) {

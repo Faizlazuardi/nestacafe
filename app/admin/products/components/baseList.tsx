@@ -9,7 +9,7 @@ import UpsertModal from "@/app/admin/components/modal/upsertModal";
 import { useModals } from "@/hooks/useModals";
 
 export default function BaseList({ products }: { products: Product[]}) {
-    const {modals: productModal, open: onOpenProductModal, close: onCloseProductModal} = useModals()
+    const {modals: productModal, open: handleOpenProductModal, close: handleCloseProductModal} = useModals()
     const [action, setAction] = useState<"POST" | "PUT" | "DELETE" | null>(null);
     const [objectName, setObjectName] = useState<'Produk' | 'Varian' | 'Komposisi' | 'Bahan Baku' | 'Karyawan' | null>(null);
     const [selectedBase, setSelectedBase] = useState<Pick<Product, 'id' | 'name'> | undefined>(undefined);
@@ -27,7 +27,7 @@ export default function BaseList({ products }: { products: Product[]}) {
                         setSelectedBase(undefined);
                         setObjectName("Produk");
                         setAction("POST");
-                        onOpenProductModal();
+                        handleOpenProductModal();
                     }}
                 />
             </div>
@@ -46,7 +46,7 @@ export default function BaseList({ products }: { products: Product[]}) {
                                             setSelectedBase(base);
                                             setObjectName("Produk");
                                             setAction("PUT");
-                                            onOpenProductModal();
+                                            handleOpenProductModal();
                                         }}
                                     >
                                         <PencilLine />
@@ -62,7 +62,7 @@ export default function BaseList({ products }: { products: Product[]}) {
                                 <VariantList
                                     base={base}
                                     variants={base.variants}
-                                    onOpenProductModal={onOpenProductModal}
+                                    onOpenProductModal={handleOpenProductModal}
                                     setAction={setAction}
                                     setObjectName={setObjectName}
                                     setSelectedBase={setSelectedBase}
@@ -82,7 +82,7 @@ export default function BaseList({ products }: { products: Product[]}) {
                         usage={selectedMaterial}
                         objectName={objectName}
                         method={action}
-                        onCloseModal={onCloseProductModal}
+                        onCloseModal={handleCloseProductModal}
                     />
                 )
             }
