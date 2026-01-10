@@ -59,7 +59,7 @@ export default function TransactionModal({
                         <span className="font-bold">Daftar Item</span>
                         {
                             purchasedProducts?.map(product => (
-                                <div key={product.id} className="flex flex-col gap-2 bg-white p-2 border border-gray-500 rounded-lg">
+                                <div key={product.id} className="flex flex-col gap-2 bg-white p-4 border border-gray-500 rounded-lg">
                                     <div className="flex justify-between gap-2">
                                         <span className="font-bold">{product.name} {product.option}</span>
                                         <span>{formatIDR(product.subtotal)}</span>
