@@ -2,21 +2,19 @@
 
 import { MaterialUsage, Product, ProductVariant } from "@/types/product";
 import { Material } from "@/types/material";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { ChevronDown } from "lucide-react";
 
 export default function MaterialUsageForm({
     base,
     variant,
-    material
+    usage
 }: {
     base: Pick<Product, 'id' | 'name'>;
     variant: Pick<ProductVariant, 'id' | 'option'>;
-    material?: Pick<MaterialUsage, 'id' | 'name'>
+    usage?: MaterialUsage
 }) {
     const [materials, setMaterials] = useState<Material[]>([]);
-    const [selectedMaterial, setSelectedMaterial] = useState<Pick<Material, 'id' | 'name'> | null>({id: "", name: ""});
-    const [isOpen, setIsOpen] = useState<Boolean>(false)
-    const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         async function fetchMaterials() {
@@ -29,16 +27,6 @@ export default function MaterialUsageForm({
             }
         }
         fetchMaterials();
-    }, []);
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     return (
@@ -54,32 +42,34 @@ export default function MaterialUsageForm({
             </label>
             <label className="flex flex-col gap-2 text-xl" >
                 <span className="font-bold">Nama Bahan Baku</span>
-                <div className="relative" ref={dropdownRef}>
-                    <input type="hidden" name="materialId" value={selectedMaterial?.id} />
-                    <div className="opacity-75 p-2 border rounded-md cursor-pointer" onClick={() => setIsOpen(true)}>
-                        {selectedMaterial?.name || "Pilih Nama Bahan Baku"}
-                    </div>
-                    <ul className={`z-10 absolute bg-white mt-1 border rounded-md w-full max-h-33 overflow-auto ${!isOpen && 'hidden'}`}>
+                <div className="inline-block relative border rounded-md">
+                    <select
+                        className="px-4 py-2 pr-10 w-full max-h-33 overflow-auto text-xl appearance-none cursor-pointer"
+                        name="materialId"
+                        defaultValue={usage?.type ?? ""}
+                    >
+                        <option disabled hidden value="">Pilih Nama Bahan Baku</option>
                         {
-                            materials.map((material) => (
-                                <li
+                            Object.values(materials).map((material) => (
+                                <option
                                     key={material.id}
-                                    className="hover:bg-gray-200 p-2 cursor-pointer"
-                                    onClick={() => {
-                                        setSelectedMaterial(material);
-                                        setIsOpen(false)
-                                    }}
+                                    value={material.id}
                                 >
                                     {material.name}
-                                </li>
+                                </option>
                             ))
                         }
-                    </ul>
+                    </select>
+
+                    <ChevronDown
+                        size={20}
+                        className="top-1/2 right-2 absolute text-gray-500 -translate-y-1/2 pointer-events-none"
+                    />
                 </div>
             </label>
             <label htmlFor="quantityUsed" className="flex flex-col gap-2 text-xl">
                 <span className="font-bold">Jumlah Bahan Baku Digunakan</span>
-                <input type="number" name="quantityUsed" id="quantityUsed" placeholder="Masukkan Jumlah Bahan Baku Digunakan" className="opacity-75 p-2 border rounded-md" />
+                <input type="number" name="quantityUsed" id="quantityUsed" placeholder="Masukkan Jumlah Bahan Baku Digunakan" value={usage?.quantityUsed} className="opacity-75 p-2 border rounded-md" />
             </label>
         </>
     );

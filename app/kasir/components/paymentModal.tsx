@@ -135,7 +135,7 @@ export default function PaymentModal({
                                         Batal
                                     </button>
                                     {
-                                        change > 0 && (
+                                        change >= 0 && (
                                             <button
                                                 className="bg-(--brand-100) py-4 border border-(--brand-500) rounded-xl w-full"
                                                 onClick={() => {

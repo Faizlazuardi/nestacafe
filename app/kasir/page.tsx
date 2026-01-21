@@ -105,7 +105,7 @@ export default function KasirPage() {
             <div className="flex flex-col w-screen h-screen">
                 <Navigation/>
                 <div className="flex flex-1 p-6 w-full min-h-0">
-                    <div className="gap-8 grid grid-cols-[2fr_1fr]">
+                    <div className="gap-8 grid sm:grid-cols-[3fr_2fr] md:grid-cols-[2fr_1fr] lg:grid-cols-[3fr_1fr] w-full">
                         <div className="overflow-y-auto">
                             <div className="gap-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 auto-rows-fr">
                                 {products.map((product) => (

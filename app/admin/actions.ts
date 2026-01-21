@@ -46,6 +46,37 @@ export async function submitEntityAction(params: {
     await actionMap[objectName][method]();
 }
 
+export async function deleteEntityAction(params: {
+    objectName: "Produk" | "Varian" | "Komposisi" | "Bahan Baku" | "Karyawan";
+    baseId?: string;
+    variantId?: string;
+    usageId?: string;
+    materialId?: string;
+    employeeId?: string;
+    formData: FormData;
+}){
+    const { objectName, baseId, variantId, usageId, materialId, employeeId, formData } = params;
+    switch (objectName) {
+        case "Produk":
+            await DeleteProductAction({baseId: baseId!})
+            break;
+        case "Varian":
+            await deleteProductVariantAction({variantId: variantId!})
+            break;
+        case "Komposisi":
+            await deleteProductMaterialAction({usageId: usageId!})
+            break;
+        case "Bahan Baku":
+            await deleteMaterialAction({materialId: materialId!})
+            break;
+        case "Karyawan":
+            await deleteEmployeeAction({employeeId: employeeId!})
+            break;
+        default:
+            break;
+    }
+}
+
 export async function createProductAction( { formData }: { formData: FormData } ) {
     try {
         const image = formData.get('image') as File;
@@ -170,9 +201,9 @@ export async function updateProductMaterialAction( { usageId, formData }: {usage
     }
 }
 
-export async function deleteProductMaterialAction( { materialId }: {materialId: string } ) {
+export async function deleteProductMaterialAction( { usageId }: {usageId: string } ) {
     try {
-        const id = BigInt(materialId)
+        const id = BigInt(usageId)
         const deletedVariant = await deleteProductMaterial(id);
         revalidatePath('/admin/products')
         return deletedVariant;

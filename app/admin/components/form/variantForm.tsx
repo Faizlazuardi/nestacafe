@@ -1,8 +1,6 @@
-"use client"
-
 import { Product, ProductVariant } from "@/types/product";
 import { VariantOption } from "@prisma/client";
-import { useEffect, useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
 
 export default function VariantForm({
     base,
@@ -11,20 +9,6 @@ export default function VariantForm({
     base: Pick<Product, 'id' | 'name'>;
     variant?: Pick<ProductVariant,'id' | 'option' | 'price'>;
 }) {
-    const [selectedVariant, setSelectedVariant] = useState<string>(variant?.option ?? "");
-    const [isOpen, setIsOpen] = useState<Boolean>(false)
-    const dropdownRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
     return (
         <>
             <label className="flex flex-col gap-2 text-xl">
@@ -34,27 +18,29 @@ export default function VariantForm({
             </label>
             <label className="flex flex-col gap-2 text-xl" >
                 <span className="font-bold">Variant Produk</span>
-                <div className="relative" ref={dropdownRef}>
-                    <input type="hidden" name="option" value={selectedVariant} />
-                    <div className="opacity-75 p-2 border rounded-md cursor-pointer" onClick={() => setIsOpen(true)}>
-                        {selectedVariant || "Pilih Tipe Bahan Baku"}
-                    </div>
-                    <ul className={`z-10 absolute bg-white mt-1 border rounded-md w-full h-33 overflow-auto ${!isOpen && 'hidden'}`}>
+                <div className="inline-block relative border rounded-md">
+                    <select
+                        className="px-4 py-2 pr-10 w-full max-h-33 overflow-auto text-xl appearance-none cursor-pointer"
+                        name="option"
+                        defaultValue={variant?.option ?? ""}
+                    >
+                        <option disabled hidden selected value="">Pilih Tipe Bahan Baku</option>
                         {
                             Object.values(VariantOption).map((type) => (
-                                <li
+                                <option
                                     key={type}
-                                    className="hover:bg-gray-200 p-2 cursor-pointer"
-                                    onClick={() => {
-                                        setSelectedVariant(type)
-                                        setIsOpen(false)
-                                    }}
+                                    value={type}
                                 >
                                     {type}
-                                </li>
+                                </option>
                             ))
                         }
-                    </ul>
+                    </select>
+
+                    <ChevronDown
+                        size={20}
+                        className="top-1/2 right-2 absolute text-gray-500 -translate-y-1/2 pointer-events-none"
+                    />
                 </div>
             </label>
             <label htmlFor="price" className="flex flex-col gap-2 text-xl">

@@ -17,7 +17,7 @@ export default function ConfirmModal({
         cashAmount: string;
         onConfirm: () => void;
         onCloseConfirmModal: () => void;
-        onOpenpaymentModal: ()=> void;
+        onOpenpaymentModal: () => void;
     }) {
 
     const total = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);

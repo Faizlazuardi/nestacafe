@@ -26,7 +26,7 @@ export default function UpsertModal({
 }: {
     base?: Pick<Product, 'id' | 'name'>;
     variant?: Pick<ProductVariant, 'id' | 'option' | 'price'>;
-    usage?: Pick<MaterialUsage, 'id' | 'name'>;
+    usage?: MaterialUsage;
     material?: Material;
     user?: User;
     objectName: 'Produk' | 'Varian' | 'Komposisi' | 'Bahan Baku' | 'Karyawan' | null;
@@ -67,7 +67,7 @@ export default function UpsertModal({
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6 px-20 py-10">
                     {objectName === "Produk" && <ProductForm base={base} />}
                     {objectName === "Varian" && <VariantForm base={base!} variant={variant} />}
-                    {objectName === "Komposisi" && <MaterialUsageForm base={base!} variant={variant!} material={usage} />}
+                    {objectName === "Komposisi" && <MaterialUsageForm base={base!} variant={variant!} usage={usage} />}
                     {objectName === "Bahan Baku" && method === "POST" && <AddMaterialForm />}
                     {objectName === "Bahan Baku" && method === "PUT" && <UpdateMaterialForm material={material!}/>}
                     {objectName === "Karyawan" && <EmployeeForm user={user} />}
