@@ -1,5 +1,4 @@
-import { unitMap } from "@/utils/material";
-import { MaterialType } from "@prisma/client";
+import { MaterialUnit } from "@prisma/client";
 import { ChevronDown } from "lucide-react";
 
 export default function AddMaterialForm() {
@@ -9,18 +8,18 @@ export default function AddMaterialForm() {
                 <span className="font-bold">Nama Bahan Baku</span>
                 <input type="text" name="name" id="name" placeholder="Masukkan Nama Bahan Baku" className="opacity-75 p-2 border rounded-md" />
             </label>
-            <label htmlFor="type" className="flex flex-col gap-2 text-xl" >
+            <label htmlFor="unit" className="flex flex-col gap-2 text-xl" >
                 <span className="font-bold">Satuan Bahan Baku</span>
                 <div className="inline-block relative border rounded-md">
-                    <select className="px-4 py-2 pr-10 w-full text-xl appearance-none cursor-pointer" defaultValue="" name="type" id="type">
+                    <select className="px-4 py-2 pr-10 w-full text-xl appearance-none cursor-pointer" defaultValue="" name="unit" id="unit">
                         <option disabled hidden value="">Pilih Satuan Bahan Baku</option>
                         {
-                            Object.values(MaterialType).map((type) => (
+                            Object.values(MaterialUnit).map((unit) => (
                                 <option
-                                    key={unitMap[type]}
-                                    value={type}
+                                    key={unit}
+                                    value={unit}
                                 >
-                                    {unitMap[type]}
+                                    {unit}
                                 </option>
                             ))
                         }

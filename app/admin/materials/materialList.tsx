@@ -5,21 +5,23 @@ import { Trash2 } from "lucide-react";
 import UpsertModal from "@/app/admin/components/modal/upsertModal";
 import AddButton from "@/app/admin/components/addButton";
 import { Material } from "@/types/material";
-import { MaterialType } from "@prisma/client";
+import { MaterialUnit } from "@prisma/client";
 import { useModals } from "@/hooks/useModals";
+import DeleteModal from "../components/modal/deleteModal";
 
-function formatQuantity(quantity: number, type: string): string {
+function formatQuantity(quantity: number, unit: string): string {
     if(quantity < 1000) {
-        return `${quantity} ${type == MaterialType.Solid ? "gr" : "ml"}`;
+        return `${quantity} ${unit == MaterialUnit.GRAM ? "gr" : "ml"}`;
     } else {
         const converted = quantity / 1000;
-        return `${converted} ${type == MaterialType.Solid ? "KG" : "L"}`;
+        return `${converted} ${unit == MaterialUnit.GRAM ? "KG" : "L"}`;
     }
 }
 
 export default function MaterialList({ materials }: {materials: Material[]}) {
-    const {modals: materialModal, open: handleOpenMaterialModal, close: handleCloseMaterialModal} = useModals()
-    const [action, setAction] = useState<"PUT" | "POST" | "DELETE" | null>(null);
+    const {modals: upsertModal, open: handleOpenUpsertModal, close: handleCloseUpsertModal} = useModals()
+    const {modals: deleteModal, open: handleOpenDeleteModal, close: handleCloseDeleteModal} = useModals()
+    const [action, setAction] = useState<"PUT" | "POST" | null>(null);
     const [selectedMaterial, setSelectedMaterial] = useState<Material | undefined>(undefined);
     
     return (
@@ -30,7 +32,7 @@ export default function MaterialList({ materials }: {materials: Material[]}) {
                     objectName="Bahan Baku" 
                     action={()=>{
                         setAction("POST");
-                        handleOpenMaterialModal();
+                        handleOpenUpsertModal();
                     }}
                 />
             </div>
@@ -40,7 +42,7 @@ export default function MaterialList({ materials }: {materials: Material[]}) {
                         <div key={material.id} className="flex justify-between bg-(--brand-50) border-(--brand-500) p-4 rounded-lg border">
                             <div>
                                 <h2 className="font-bold text-2xl">{material.name}</h2>
-                                <span className="font-semibold text-xl text-(--brand-500)">{formatQuantity(material.quantity, material.type)}</span>
+                                <span className="font-semibold text-xl text-(--brand-500)">{formatQuantity(material.stock, material.unit)}</span>
                             </div>
                             <div className="flex items-center gap-4">
                                 <AddButton 
@@ -48,20 +50,26 @@ export default function MaterialList({ materials }: {materials: Material[]}) {
                                     action={()=>{
                                         setSelectedMaterial(material)
                                         setAction("PUT");
-                                        handleOpenMaterialModal();
+                                        handleOpenUpsertModal();
                                     }}
                                 />
-                                <button className="flex items-center gap-2 p-2 rounded-lg w-fit h-fit button-primary">
-                                    <Trash2 className="" />
-                                </button>
+                                <Trash2 className="flex items-center gap-2 p-2 rounded-lg w-fit h-fit button-primary" onClick={() => {
+                                    setSelectedMaterial(material);
+                                    handleOpenDeleteModal();
+                                }} />
                             </div>
                         </div>
                     ))
                 }
             </div>
             {
-                materialModal && (
-                    <UpsertModal objectName={"Bahan Baku"} method={action} onCloseModal={handleCloseMaterialModal} material={selectedMaterial}/>
+                upsertModal && (
+                    <UpsertModal objectName={"Bahan Baku"} method={action!} onCloseModal={handleCloseUpsertModal} material={selectedMaterial}/>
+                )
+            }
+            {
+                deleteModal && (
+                    <DeleteModal objectName={"Bahan Baku"} onCloseModal={handleCloseDeleteModal} material={selectedMaterial}/>
                 )
             }
         </>

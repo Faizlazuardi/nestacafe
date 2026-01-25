@@ -14,35 +14,27 @@ import UpdateMaterialForm from "../form/updateMaterialForm";
 import { Material } from "@/types/material";
 import { User } from "@/types/user";
 
-export default function UpsertModal({
-    base,
-    variant,
-    usage,
-    material,
-    user,
-    objectName,
-    method,
-    onCloseModal
-}: {
-    base?: Pick<Product, 'id' | 'name'>;
+export default function UpsertModal({ base, variant, usage, material, user, objectName, method, onCloseModal }:
+    {
+    base?: Pick<Product, 'id' | 'name' >;
     variant?: Pick<ProductVariant, 'id' | 'option' | 'price'>;
     usage?: MaterialUsage;
     material?: Material;
     user?: User;
     objectName: 'Produk' | 'Varian' | 'Komposisi' | 'Bahan Baku' | 'Karyawan' | null;
-    method: 'POST' | 'PUT' | 'DELETE' | null;
+    method: 'POST' | 'PUT';
     onCloseModal: () => void
 }) {
     const router = useRouter()
     const [isPending, startTransition] = useTransition();
-        const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
 
         startTransition(() => {
             submitEntityAction({
                 objectName: objectName!,
-                method: method as "POST" | "PUT",
+                method: method,
                 baseId: base?.id,
                 variantId: variant?.id,
                 usageId: usage?.id,
@@ -65,12 +57,12 @@ export default function UpsertModal({
                     <X onClick={onCloseModal} />
                 </div>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6 px-20 py-10">
-                    {objectName === "Produk" && <ProductForm base={base} />}
-                    {objectName === "Varian" && <VariantForm base={base!} variant={variant} />}
-                    {objectName === "Komposisi" && <MaterialUsageForm base={base!} variant={variant!} usage={usage} />}
-                    {objectName === "Bahan Baku" && method === "POST" && <AddMaterialForm />}
-                    {objectName === "Bahan Baku" && method === "PUT" && <UpdateMaterialForm material={material!}/>}
-                    {objectName === "Karyawan" && <EmployeeForm user={user} />}
+                    { objectName === "Produk" && <ProductForm base={base} /> }
+                    { objectName === "Varian" && <VariantForm base={base!} variant={variant} /> }
+                    { objectName === "Komposisi" && <MaterialUsageForm base={base!} variant={variant!} usage={usage} /> }
+                    { objectName === "Bahan Baku" && method === "POST" && <AddMaterialForm /> }
+                    { objectName === "Bahan Baku" && method === "PUT" && <UpdateMaterialForm material={material!}/> }
+                    { objectName === "Karyawan" && <EmployeeForm user={user} /> }
                     <button type="submit" className="py-2 rounded-lg w-full text-lg button-primary" disabled={isPending}>
                         {isPending ? "Menyimpan..." : "Simpan"}
                     </button>

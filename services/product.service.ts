@@ -20,7 +20,7 @@ export async function getAllProducts(options?: boolean) {
                     id: true,
                     price: true,
                     option: true,
-                    productMaterials: {
+                    ingredients: {
                         where: {
                             isDeleted: false,
                         },
@@ -30,7 +30,7 @@ export async function getAllProducts(options?: boolean) {
                                 select: {
                                     id: true,
                                     name: true,
-                                    type: true,
+                                    unit: true,
                                 },
                             },
                         },
@@ -44,15 +44,15 @@ export async function getAllProducts(options?: boolean) {
         id: String(id),
         name,
         image,
-        variants: variants.map(({ id, option, price, productMaterials }) => ({
+        variants: variants.map(({ id, option, price, ingredients }) => ({
             id: String(id),
             option,
             price,
             materials: includeMaterials
-            ? productMaterials.map(({ material: {id, name, type}, quantityUsed }) => ({
+            ? ingredients.map(({ material: {id, name, unit}, quantityUsed }) => ({
                 id: String(id),
                 name,
-                type,
+                unit,
                 quantityUsed
                 }))
             : undefined
@@ -75,11 +75,33 @@ export async function updateProduct(id: bigint, data: { name: string; image?: st
 }
 
 export async function deleteProduct(id: bigint) {
-    return await prisma.productBase.update({
-        where: { id },
-        data:{
-            isDeleted: true
-        }
+    await prisma.$transaction(async (tx) => {
+        await tx.productBase.update({
+            where: { id },
+            data: { isDeleted: true },
+        });
+
+        await tx.productVariant.updateMany({
+            where: {
+                baseId: id,
+                isDeleted: false,
+            },
+            data: {
+                isDeleted: true,
+            },
+        });
+
+        await tx.productIngredient.updateMany({
+            where: {
+                product: {
+                    baseId: id,
+                },
+                isDeleted: false,
+            },
+            data: {
+                isDeleted: true,
+            },
+        });
     });
 }
 

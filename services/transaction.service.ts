@@ -61,77 +61,83 @@ export async function createTransaction(data: any) {
         products,
     } = data;
     
-    const transaction = await prisma.transaction.create({
-        data: {
-            cashierId: BigInt(cashierId),
-            paymentType,
-            total,
-            details: {
-                create: products.map((product: any) => ({
-                    productId: BigInt(product.id),
-                    quantity: product.quantity,
-                    subtotal: product.subtotal,
-                })),
-            },
-        },
-    });
-    
-    const variants = await prisma.productVariant.findMany({
-        where: {
-            id: {
-                in: products.map((product: any) => BigInt(product.id)),
-            },
-        },
-        select: {
-            id: true,
-            productMaterials: {
-                select: {
-                    materialId: true,
-                    quantityUsed: true,
+    await prisma.$transaction(async (tx) => {
+        const transaction = await tx.transaction.create({
+            data: {
+                cashierId: BigInt(cashierId),
+                paymentType,
+                total,
+                details: {
+                    create: products.map((product: any) => ({
+                        productId: BigInt(product.id),
+                        quantity: product.quantity,
+                        subtotal: product.subtotal,
+                    })),
                 },
             },
-        },
-    });
-    
-    const productQtyMap = Object.fromEntries(
-        products.map((p: any) => [p.id, p.quantity])
-    );
-    
-    const materials = variants.flatMap(variant =>
-        variant.productMaterials.map(pm => ({
-            materialId: pm.materialId,
-            quantityUsed: pm.quantityUsed * productQtyMap[String(variant.id)],
-        }))
-    );
-    
-    const materialTotals = materials.reduce<Record<string, { materialId: bigint; total: number }>>((acc, item) => {
-        const key = String(item.materialId);
-        if (!acc[key]) {
-            acc[key] = {
-                materialId: item.materialId,
-                total: 0,
-            };
+        });
+
+        const variants = await tx.productVariant.findMany({
+            where: {
+                id: {
+                    in: products.map((product: any) => BigInt(product.id)),
+                },
+            },
+            select: {
+                id: true,
+                ingredients:{
+                    select:{
+                        materialId:true,
+                        quantityUsed:true,
+                    }
+                }
+            }
+        });
+        
+        const productQtyMap = Object.fromEntries(
+            products.map((p: any) => [p.id, p.quantity])
+        );
+
+        const materialTotals = variants
+            .flatMap(variant =>
+                variant.ingredients.map(ing => ({
+                    materialId: ing.materialId,
+                    total: ing.quantityUsed * productQtyMap[String(variant.id)],
+                }))
+            )
+            .reduce<Record<string, { materialId: bigint; total: number }>>((acc, item) => {
+                const key = String(item.materialId);
+                if (!acc[key]) {
+                    acc[key] = { materialId: item.materialId, total: 0 };
+                }
+                acc[key].total += item.total;
+                return acc;
+            }, {});
+        
+        for (const mat of Object.values(materialTotals)) {
+            const material = await tx.material.findUnique({
+            where: { id: mat.materialId },
+                select: { stock: true },
+            });
+
+            if (!material || material.stock < mat.total) {
+            throw new Error(`Stok material tidak cukup`);
+            }
         }
-        acc[key].total += item.quantityUsed;
-        return acc;
-    }, {});
-    
-    const materialUpdates = await prisma.$transaction(
-        Object.values(materialTotals).map(mat =>
-            prisma.material.update({
-                where: {
-                    id: mat.materialId,
-                },
+
+        for (const mat of Object.values(materialTotals)) {
+            await tx.material.update({
+            where: { id: mat.materialId },
                 data: {
-                    quantity: {
+                    stock: {
                         decrement: mat.total,
                     },
                 },
-            })
-        )
-    );
-    
-    return transaction;
+            });
+        }
+
+        return transaction;
+    });
 }
 
 export async function getTotalRevenue (time: TimeRange) {

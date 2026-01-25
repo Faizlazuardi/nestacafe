@@ -3,7 +3,7 @@ import { VariantOption } from "@prisma/client"
 export interface MaterialUsage {
     id: string;
     name: string;
-    type: string;
+    unit: string;
     quantityUsed: number;
 }
 

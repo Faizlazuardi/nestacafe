@@ -1,14 +1,15 @@
 import prisma from "@/lib/prisma";
-import { MaterialType } from "@prisma/client";
+import { MaterialUnit } from "@prisma/client";
 
 
 export async function getAllMaterials() {
     const materials = await prisma.material.findMany({
+        where: { isDeleted: false },
         select: {
             id: true,
             name: true,
-            type: true,
-            quantity: true,
+            unit: true,
+            stock: true,
         },
     });
     return materials.map(material => ({
@@ -17,7 +18,7 @@ export async function getAllMaterials() {
     }));
 }
 
-export async function createMaterial(data: { name: string; type: MaterialType; quantity: number }) {
+export async function createMaterial(data: { name: string; unit: MaterialUnit; stock: number }) {
     return await prisma.material.create({
         data,
     });
@@ -35,7 +36,7 @@ export async function updateMaterial(id: bigint, data: { quantity: number }) {
 export async function deleteMaterial(id: bigint) {
     return await prisma.material.update({
         where: { id },
-        data:{
+        data: {
             isDeleted: true
         }
     });

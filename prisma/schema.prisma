@@ -14,9 +14,9 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum MaterialType {
-  Liquid
-  Solid
+enum MaterialUnit {
+  GRAM
+  ML
 }
 
 enum VariantOption {
@@ -56,22 +56,22 @@ model ProductVariant {
   isDeleted          Boolean             @default(false)
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
-  productMaterials   ProductMaterial[]
+  ingredients        ProductIngredient[]
   transactionDetails TransactionDetail[]
 }
 
 model Material {
-  id               BigInt            @id @default(autoincrement())
-  name             String
-  type             MaterialType
-  quantity         Int
-  isDeleted        Boolean           @default(false)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  productMaterials ProductMaterial[]
+  id          BigInt              @id @default(autoincrement())
+  name        String
+  unit        MaterialUnit
+  stock       Int
+  isDeleted   Boolean             @default(false)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  ingredients ProductIngredient[]
 }
 
-model ProductMaterial {
+model ProductIngredient {
   id           BigInt         @id @default(autoincrement())
   productId    BigInt
   product      ProductVariant @relation(fields: [productId], references: [id])
@@ -81,6 +81,8 @@ model ProductMaterial {
   isDeleted    Boolean        @default(false)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
+
+  @@unique([productId, materialId])
 }
 
 model User {

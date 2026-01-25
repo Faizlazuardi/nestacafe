@@ -1,8 +1,8 @@
 "use server"
 
 import { revalidatePath } from "next/cache";
-import { MaterialType, VariantOption } from "@prisma/client";
-import { createProductMaterial, updateProductMaterial, deleteProductMaterial } from "@/services/product.material.service";
+import { MaterialUnit, VariantOption } from "@prisma/client";
+import { createProductIngredient, updateProductIngredient, deleteProductIngredient } from "@/services/product.material.service";
 import { createProduct, updateProduct, deleteProduct  } from "@/services/product.service";
 import { createProductVariant, updateProductVariant, deleteProductVariant } from "@/services/product.variant.service";
 import { createMaterial, deleteMaterial, updateMaterial } from "@/services/material.service";
@@ -31,8 +31,8 @@ export async function submitEntityAction(params: {
             PUT: () => updateProductVariantAction( { variantId: variantId!, formData } ),
         },
         Komposisi: {
-            POST: () => createProductMaterialAction( { formData } ),
-            PUT: () => updateProductMaterialAction( { usageId: usageId!, formData } ),
+            POST: () => createProductIngredientAction( { formData } ),
+            PUT: () => updateProductIngredientAction( { usageId: usageId!, formData } ),
         },
         "Bahan Baku": {
             POST: () => createMaterialAction( { formData } ),
@@ -53,9 +53,8 @@ export async function deleteEntityAction(params: {
     usageId?: string;
     materialId?: string;
     employeeId?: string;
-    formData: FormData;
 }){
-    const { objectName, baseId, variantId, usageId, materialId, employeeId, formData } = params;
+    const { objectName, baseId, variantId, usageId, materialId, employeeId } = params;
     switch (objectName) {
         case "Produk":
             await DeleteProductAction({baseId: baseId!})
@@ -64,7 +63,7 @@ export async function deleteEntityAction(params: {
             await deleteProductVariantAction({variantId: variantId!})
             break;
         case "Komposisi":
-            await deleteProductMaterialAction({usageId: usageId!})
+            await deleteProductIngredientAction({usageId: usageId!})
             break;
         case "Bahan Baku":
             await deleteMaterialAction({materialId: materialId!})
@@ -89,7 +88,7 @@ export async function createProductAction( { formData }: { formData: FormData } 
             name: formData.get('name') as string,
             image: imageUrl!,
         };
-        const newProduct = await createProduct(parsedData);
+        await createProduct(parsedData);
         revalidatePath('/admin/products')
         return "Produk berhasil Dibuat";
     } catch (error: any) {
@@ -170,14 +169,14 @@ export async function deleteProductVariantAction( { variantId }: { variantId: st
     }
 }
 
-export async function createProductMaterialAction( { formData }: { formData: FormData } ) {
+export async function createProductIngredientAction( { formData }: { formData: FormData } ) {
     try {
         const parsedData = {
             productId: BigInt(formData.get('variantId') as string),
             materialId: BigInt(formData.get('materialId') as string),
             quantityUsed: Number(formData.get('quantityUsed') as string),
         };
-        const newMaterial = await createProductMaterial(parsedData);
+        const newMaterial = await createProductIngredient(parsedData);
         revalidatePath('/admin/products')
         return "Bahan Baku Berhasil Ditambahkan Ke Dalam Produk";
     } catch (error: any) {
@@ -185,7 +184,7 @@ export async function createProductMaterialAction( { formData }: { formData: For
     }
 }
 
-export async function updateProductMaterialAction( { usageId, formData }: {usageId: string, formData: FormData} ) {
+export async function updateProductIngredientAction( { usageId, formData }: {usageId: string, formData: FormData} ) {
     try {
         const id = BigInt(usageId)
         const parsedData = {
@@ -193,7 +192,7 @@ export async function updateProductMaterialAction( { usageId, formData }: {usage
             materialId: BigInt(formData.get('materialId') as string),
             quantityUsed: Number(formData.get('quantityUsed') as string),
         };
-        const newMaterialUsage = await updateProductMaterial(id, parsedData);
+        const newMaterialUsage = await updateProductIngredient(id, parsedData);
         revalidatePath('/admin/products')
         return "Bahan Baku Berhasil Diperbarui Di Dalam Produk";
     } catch (error: any) {
@@ -201,10 +200,10 @@ export async function updateProductMaterialAction( { usageId, formData }: {usage
     }
 }
 
-export async function deleteProductMaterialAction( { usageId }: {usageId: string } ) {
+export async function deleteProductIngredientAction( { usageId }: {usageId: string } ) {
     try {
         const id = BigInt(usageId)
-        const deletedVariant = await deleteProductMaterial(id);
+        const deletedVariant = await deleteProductIngredient(id);
         revalidatePath('/admin/products')
         return deletedVariant;
     } catch (error: any) {
@@ -216,8 +215,8 @@ export async function createMaterialAction( { formData }: { formData: FormData }
     try {
         const parsedData = {
             name: formData.get('name') as string,
-            type: formData.get('type') as MaterialType,
-            quantity: Number(formData.get('quantity') as string)
+            unit: formData.get('unit') as MaterialUnit,
+            stock: Number(formData.get('quantity') as string)
         };
         const newMaterial = await createMaterial(parsedData)
         revalidatePath('/admin/materials')

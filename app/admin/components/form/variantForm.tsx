@@ -24,7 +24,7 @@ export default function VariantForm({
                         name="option"
                         defaultValue={variant?.option ?? ""}
                     >
-                        <option disabled hidden selected value="">Pilih Tipe Bahan Baku</option>
+                        <option disabled hidden value="">Pilih Tipe Bahan Baku</option>
                         {
                             Object.values(VariantOption).map((type) => (
                                 <option

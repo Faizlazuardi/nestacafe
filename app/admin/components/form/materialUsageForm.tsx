@@ -46,7 +46,7 @@ export default function MaterialUsageForm({
                     <select
                         className="px-4 py-2 pr-10 w-full max-h-33 overflow-auto text-xl appearance-none cursor-pointer"
                         name="materialId"
-                        defaultValue={usage?.type ?? ""}
+                        defaultValue={usage?.name ?? ""}
                     >
                         <option disabled hidden value="">Pilih Nama Bahan Baku</option>
                         {

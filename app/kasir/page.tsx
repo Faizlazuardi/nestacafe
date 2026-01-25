@@ -51,6 +51,7 @@ export default function KasirPage() {
                     body: JSON.stringify(payload)
                 }
             )
+            console.log(res.status)
             if (!res.ok) {
                 throw new Error('Transaction failed');
             }

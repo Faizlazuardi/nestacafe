@@ -1,8 +1,8 @@
-import { MaterialType } from "@prisma/client"
+import { MaterialUnit } from "@prisma/client"
 
 export interface Material{
     id: string,
     name: string,
-    type: MaterialType,
-    quantity: number
+    unit: MaterialUnit,
+    stock: number
 }

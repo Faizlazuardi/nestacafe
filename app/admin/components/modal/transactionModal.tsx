@@ -23,12 +23,12 @@ export default function TransactionModal({
     },[selectedTransaction])
     return(
         <div className="fixed inset-0 flex justify-center items-center bg-black/20">
-            <div className="flex flex-col items-center bg-white rounded-2xl w-md max-h-9/10 overflow-auto">
+            <div className="flex flex-col items-center bg-white rounded-2xl w-md max-h-8/10">
                 <div className="flex bg-(--brand-500) text-white p-6 rounded-t-2xl justify-between items-center w-full">
                     <span className="font-bold text-2xl">Detail Transaksi</span>
                     <X onClick={onCloseTransactionModal}/>
                 </div>
-                <div className="flex flex-col gap-6 p-6 w-full">
+                <div className="flex flex-col gap-6 p-6 w-full overflow-auto">
                     <div className="flex flex-col gap-4 bg-gray-100 p-4 border border-gray-500 rounded-2xl">
                         <div className="flex flex-col gap-2">
                             <span className="font-bold">Informasi Transaksi</span>

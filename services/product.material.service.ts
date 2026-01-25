@@ -1,21 +1,20 @@
 import prisma from "@/lib/prisma";
-import { VariantOption } from "@prisma/client";
 
-export function createProductMaterial(data: {productId: bigint; materialId: bigint; quantityUsed: number;}) {
-    return prisma.productMaterial.create({
+export function createProductIngredient(data: {productId: bigint; materialId: bigint; quantityUsed: number;}) {
+    return prisma.productIngredient.create({
         data,
     });
 }
 
-export function updateProductMaterial(id: bigint, data: {productId: bigint; materialId: bigint; quantityUsed: number;}) {
-    return prisma.productMaterial.update({
+export function updateProductIngredient(id: bigint, data: {productId: bigint; materialId: bigint; quantityUsed: number;}) {
+    return prisma.productIngredient.update({
         where: { id },
         data,
     });
 }
 
-export function deleteProductMaterial(id: bigint) {
-    return prisma.productMaterial.update({
+export function deleteProductIngredient(id: bigint) {
+    return prisma.productIngredient.update({
         where: { id },
         data:{
             isDeleted: true

@@ -13,11 +13,22 @@ export function updateProductVariant(id: bigint, data: {baseId: bigint; price: n
         data,
     });
 }
-export function deleteProductVariant(id: bigint) {
-    return prisma.productVariant.update({
-        where: { id },
-        data:{
-            isDeleted: true
-        }
+
+export async function deleteProductVariant(id: bigint) {
+    await prisma.$transaction(async (tx) => {
+        await tx.productVariant.update({
+            where: { id },
+            data: { isDeleted: true },
+        });
+
+        await tx.productIngredient.updateMany({
+            where: {
+                productId: id,
+                isDeleted: false,
+            },
+            data: {
+                isDeleted: true,
+            },
+        });
     });
 }

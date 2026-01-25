@@ -14,12 +14,7 @@ export async function POST(request: Request): Promise<Response> {
     try{
         const data = await request.json();
         const newTransaction = await createTransaction(data);
-        const transaction = {
-            ...newTransaction,
-            id: String(newTransaction.id),
-            cashierId: String(newTransaction.cashierId),
-        }
-        return NextResponse.json(transaction, { status: 200 });
+        return NextResponse.json("Transaction completed successfully. Stock has been updated.", { status: 200 });
     } catch(error: any) {
         return NextResponse.json(
             { message: error.message },

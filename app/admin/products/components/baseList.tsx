@@ -7,13 +7,15 @@ import VariantList from "./variantList";
 import { useState } from "react";
 import UpsertModal from "@/app/admin/components/modal/upsertModal";
 import { useModals } from "@/hooks/useModals";
+import DeleteModal from "../../components/modal/deleteModal";
 
 export default function BaseList({ products }: { products: Product[]}) {
-    const {modals: productModal, open: handleOpenProductModal, close: handleCloseProductModal} = useModals()
-    const [action, setAction] = useState<"POST" | "PUT" | "DELETE" | null>(null);
+    const {modals: upsertModal, open: handleOpenUpsertModal, close: handleCloseUpsertModal} = useModals()
+    const {modals: deleteModal, open: handleOpenDeleteModal, close: handleCloseDeleteModal} = useModals()
+    const [action, setAction] = useState<"POST" | "PUT" | null>(null);
     const [objectName, setObjectName] = useState<'Produk' | 'Varian' | 'Komposisi' | 'Bahan Baku' | 'Karyawan' | null>(null);
-    const [selectedBase, setSelectedBase] = useState<Pick<Product, 'id' | 'name'> | undefined>(undefined);
-    const [selectedVariant, setSelectedVariant] = useState<Pick<ProductVariant, 'id' | 'option' | 'price'> | undefined>(undefined);
+    const [selectedBase, setSelectedBase] = useState<Pick<Product, 'id' | 'name' | 'variants'> | undefined>(undefined);
+    const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(undefined);
     const [selectedMaterial, setSelectedMaterial] = useState<MaterialUsage | undefined>(undefined);
     ;
     
@@ -27,7 +29,7 @@ export default function BaseList({ products }: { products: Product[]}) {
                         setSelectedBase(undefined);
                         setObjectName("Produk");
                         setAction("POST");
-                        handleOpenProductModal();
+                        handleOpenUpsertModal();
                     }}
                 />
             </div>
@@ -46,13 +48,15 @@ export default function BaseList({ products }: { products: Product[]}) {
                                             setSelectedBase(base);
                                             setObjectName("Produk");
                                             setAction("PUT");
-                                            handleOpenProductModal();
+                                            handleOpenUpsertModal();
                                         }}
                                     >
                                         <PencilLine />
                                     </button>
                                     <button onClick={() => {
-                                        setAction("DELETE");
+                                        setSelectedBase(base);
+                                        setObjectName("Produk");
+                                        handleOpenDeleteModal();
                                     }}>
                                         <Trash2 />
                                     </button>
@@ -62,7 +66,8 @@ export default function BaseList({ products }: { products: Product[]}) {
                                 <VariantList
                                     base={base}
                                     variants={base.variants}
-                                    onOpenProductModal={handleOpenProductModal}
+                                    onOpenUpsertModal={handleOpenUpsertModal}
+                                    onOpenDeleteModal={handleOpenDeleteModal}
                                     setAction={setAction}
                                     setObjectName={setObjectName}
                                     setSelectedBase={setSelectedBase}
@@ -75,14 +80,25 @@ export default function BaseList({ products }: { products: Product[]}) {
                 })
             }
             {
-                productModal && (
+                upsertModal && (
                     <UpsertModal
                         base={selectedBase}
                         variant={selectedVariant}
                         usage={selectedMaterial}
                         objectName={objectName}
-                        method={action}
-                        onCloseModal={handleCloseProductModal}
+                        method={action!}
+                        onCloseModal={handleCloseUpsertModal}
+                    />
+                )
+            }
+            {
+                deleteModal && (
+                    <DeleteModal
+                        base={selectedBase}
+                        variant={selectedVariant}
+                        usage={selectedMaterial}
+                        objectName={objectName}
+                        onCloseModal={handleCloseDeleteModal}
                     />
                 )
             }

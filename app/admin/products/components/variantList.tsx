@@ -7,20 +7,22 @@ import { formatIDR } from "@/utils/formatIDR";
 export default function VariantList({
     base,
     variants,
-    onOpenProductModal,
+    onOpenUpsertModal,
+    onOpenDeleteModal,
     setAction,
     setObjectName,
     setSelectedBase,
     setSelectedVariant,
     setSelectedMaterial
 }: {
-    base: Pick<Product, 'id' | 'name'>;
+    base: Pick<Product, 'id' | 'name' | 'variants'>;
     variants: ProductVariant[];
-    onOpenProductModal: () => void;
-    setAction: (action: "POST" | "PUT" | "DELETE") => void;
+    onOpenUpsertModal: () => void;
+    onOpenDeleteModal: () => void;
+    setAction: (action: "POST" | "PUT") => void;
     setObjectName: (name: 'Produk' | 'Varian' | 'Komposisi' | 'Bahan Baku' | 'Karyawan') => void;
-    setSelectedBase: (base: Pick<Product, 'id' | 'name'> | undefined) => void;
-    setSelectedVariant: (variant: Pick<ProductVariant, 'id' | 'option' | 'price'> | undefined) => void;
+    setSelectedBase: (base: Pick<Product, 'id' | 'name' | 'variants'> | undefined) => void;
+    setSelectedVariant: (variant: ProductVariant | undefined) => void;
     setSelectedMaterial: (material: MaterialUsage | undefined) => void
 }) {
     return (
@@ -34,7 +36,7 @@ export default function VariantList({
                         setSelectedVariant(undefined);
                         setObjectName("Varian");
                         setAction("POST");
-                        onOpenProductModal();
+                        onOpenUpsertModal();
                     }}
                 />
             </div>
@@ -58,12 +60,17 @@ export default function VariantList({
                                             setSelectedVariant(variant);
                                             setObjectName("Varian");
                                             setAction('PUT');
-                                            onOpenProductModal();
+                                            onOpenUpsertModal();
                                         }}
                                     >
                                         <PencilLine />
                                     </button>
-                                    <button>
+                                    <button onClick={() => {
+                                        setSelectedBase(base);
+                                        setSelectedVariant(variant);
+                                        setObjectName("Varian");
+                                        onOpenDeleteModal();
+                                    }}>
                                         <Trash2 />
                                     </button>
                                 </div>
@@ -73,7 +80,8 @@ export default function VariantList({
                                     base={base}
                                     variant={variant}
                                     materials={variant.materials!}
-                                    onOpenProductModal={onOpenProductModal}
+                                    onOpenUpsertModal={onOpenUpsertModal}
+                                    onOpenDeleteModal={onOpenDeleteModal}
                                     setAction={setAction}
                                     setObjectName={setObjectName}
                                     setSelectedBase={setSelectedBase}
