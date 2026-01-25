@@ -7,7 +7,7 @@ import { createProduct, updateProduct, deleteProduct  } from "@/services/product
 import { createProductVariant, updateProductVariant, deleteProductVariant } from "@/services/product.variant.service";
 import { createMaterial, deleteMaterial, updateMaterial } from "@/services/material.service";
 import { saveImage } from "@/utils/saveImage";
-import { createUser, updateUser } from "@/services/user.service";
+import { createUser, deleteUser, updateUser } from "@/services/user.service";
 
 export async function submitEntityAction(params: {
     objectName: "Produk" | "Varian" | "Komposisi" | "Bahan Baku" | "Karyawan";
@@ -279,5 +279,12 @@ export async function updateEmployeeAction( { employeeId, formData }: { employee
 }
 
 export async function deleteEmployeeAction( { employeeId }: { employeeId:string } ){
-
+    try {
+        const id = BigInt(employeeId)
+        const deletedUser = await deleteUser(id);
+        revalidatePath('/admin/employees')
+        return  "Pengguna Berhasil Dihapus";
+    } catch (error: any) {
+        return error.message;
+    }
 }

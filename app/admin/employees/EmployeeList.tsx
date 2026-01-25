@@ -6,10 +6,13 @@ import UpsertModal from "@/app/admin/components/modal/upsertModal";
 import AddButton from "@/app/admin/components/addButton";
 import { PencilLine, Trash2 } from "lucide-react"
 import { useModals } from "@/hooks/useModals";
+import DeleteModal from "../components/modal/deleteModal";
+import { UserRole } from "@prisma/client";
 
 export default function EmployeeList({ users }:{users: User[]}) {
-    const {modals: employeeModal, open: handleOpenEmployeeModal, close: handleCloseEmployeeModal} = useModals()
-    const [action, setAction] = useState<"PUT" | "POST" | "DELETE" | null>(null);
+    const {modals: upsertModal, open: handleOpenUpsertModal, close: handleCloseUpsertModal} = useModals()
+    const {modals: deleteModal, open: handleOpenDeleteModal, close: handleCloseDeleteModal} = useModals()
+    const [action, setAction] = useState<"PUT" | "POST" | null>(null);
     const [selectedUser, setSelectedUser] = useState<User | undefined>(undefined)
     
     return (
@@ -20,7 +23,7 @@ export default function EmployeeList({ users }:{users: User[]}) {
                     objectName="Karyawan" 
                     action={()=>{
                         setAction("POST");
-                        handleOpenEmployeeModal();
+                        handleOpenUpsertModal();
                     }}
                 />
             </div>
@@ -45,13 +48,20 @@ export default function EmployeeList({ users }:{users: User[]}) {
                                         <button onClick={() => {
                                             setSelectedUser(user)
                                             setAction("PUT");
-                                            handleOpenEmployeeModal();
+                                            handleOpenUpsertModal();
                                         }}>
                                             <PencilLine/>
                                         </button>
-                                        <button>
-                                            <Trash2/>
-                                        </button>
+                                        {
+                                            user.role !== UserRole.Admin && (
+                                                <button onClick={() => {
+                                                    setSelectedUser(user)
+                                                    handleOpenDeleteModal();
+                                                }}>
+                                                    <Trash2/>
+                                                </button>
+                                            )
+                                        }
                                     </td>
                                 </tr>
                             )
@@ -61,8 +71,13 @@ export default function EmployeeList({ users }:{users: User[]}) {
                 </tbody>
             </table>
             {
-                employeeModal && (
-                    <UpsertModal objectName={"Karyawan"} method={action} onCloseModal={handleCloseEmployeeModal} user={selectedUser}/>
+                upsertModal && (
+                    <UpsertModal objectName={"Karyawan"} method={action!} onCloseModal={handleCloseUpsertModal} user={selectedUser}/>
+                )
+            }
+            {
+                deleteModal && (
+                    <DeleteModal objectName={"Karyawan"} onCloseModal={handleCloseDeleteModal} user={selectedUser}/>
                 )
             }
         </>

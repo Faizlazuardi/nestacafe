@@ -53,10 +53,12 @@ export default function MaterialList({ materials }: {materials: Material[]}) {
                                         handleOpenUpsertModal();
                                     }}
                                 />
-                                <Trash2 className="flex items-center gap-2 p-2 rounded-lg w-fit h-fit button-primary" onClick={() => {
+                                <button onClick={() => {
                                     setSelectedMaterial(material);
                                     handleOpenDeleteModal();
-                                }} />
+                                }}>
+                                    <Trash2 className="flex items-center gap-2 p-2 rounded-lg w-fit h-fit button-primary"/>
+                                </button>
                             </div>
                         </div>
                     ))
