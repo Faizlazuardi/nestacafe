@@ -4,6 +4,7 @@ export interface MaterialUsage {
     id: string;
     name: string;
     unit: string;
+    stock: number;
     quantityUsed: number;
 }
 
@@ -11,7 +12,7 @@ export interface ProductVariant {
     id: string;
     price: number;
     option: VariantOption;
-    materials?: MaterialUsage[];
+    materials: MaterialUsage[];
 }
 
 export interface Product {

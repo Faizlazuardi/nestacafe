@@ -19,6 +19,7 @@ export default function KasirPage() {
     const { modals:confirmModal, open:handleOpenConfirmModal, close:handleCloseConfirmModal } = useModals();
     
     const [products, setProducts] = useState<Product[]>([]);
+    const [materials, setMaterials] = useState<{id: string; stock: number}[]>([]);
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [productSelected, setProductSelected] = useState<Product | null>(null)
     const [paymentMethod, setPaymentMethod] = useState< PaymentType | null>(null);
@@ -35,14 +36,15 @@ export default function KasirPage() {
             cashierId: user!.id,
             paymentType: paymentMethod,
             total: totalPrice,
-            products: cartItems.map(item =>({
+            products: cartItems.map(item => ({
                 id: item.id,
+                name: item.name,
                 quantity: item.quantity,
                 subtotal: item.quantity * item.price
             }))
         }
         try {
-            const res = await fetch('/api/transaction',
+            const res = await fetch('/api/checkout',
                 {
                     method: 'POST',
                     headers: {
@@ -51,17 +53,13 @@ export default function KasirPage() {
                     body: JSON.stringify(payload)
                 }
             )
-            console.log(res.status)
-            if (!res.ok) {
-                throw new Error('Transaction failed');
-            }
             setCartItems([]);
             setPaymentMethod(null);
         } catch(error: any){
             console.error(error);
         }
     }
-    
+
     const removeFromCart = (product: CartItem):void =>{
         setCartItems(prevItems =>
             prevItems.filter(item => !(item.id === product.id && item.variant === product.variant))
@@ -91,15 +89,42 @@ export default function KasirPage() {
         async function fetchProducts() {
             try {
                 const res = await fetch('/api/product');
-                const data = await res.json();
-                setProducts(data);
+                const { products, materials } = await res.json();
+                setProducts(products);
+                setMaterials(materials);
             } catch (error) {
                 console.error(error);
             }
         }
-        
         fetchProducts();
     }, []);
+    
+    
+    const availableStock = (product: Product) => {
+        const countMaterialRemaining = (materialId: string) => {
+            const materialStock = materials.find(m => m.id === materialId)?.stock ?? 0;
+            
+            const totalUsage = cartItems.reduce((total, item) => {
+                if (item.id !== product.id) return total;
+                
+                const variant = product.variants.find(v => v.option === item.variant);
+                if (!variant) return total;
+                
+                const material = variant.materials.find(m => m.id === materialId);
+                if (!material) return total;
+                
+                return total + material.quantityUsed * item.quantity;
+            }, 0);
+            
+            return materialStock - totalUsage;
+        };
+        
+        return product.variants.some(variant =>
+            variant.materials.every(material =>
+                countMaterialRemaining(material.id) >= material.quantityUsed
+            )
+        );
+    };
     
     return (
         <>
@@ -109,21 +134,30 @@ export default function KasirPage() {
                     <div className="gap-8 grid sm:grid-cols-[3fr_2fr] md:grid-cols-[2fr_1fr] lg:grid-cols-[3fr_1fr] w-full">
                         <div className="overflow-y-auto">
                             <div className="gap-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 auto-rows-fr">
-                                {products.map((product) => (
-                                    <div 
-                                        key={product.id} 
-                                        className="flex flex-col items-center bg-(--brand-50) p-5 rounded-xl w-full h-full" //
-                                        onClick={() => {
-                                            setProductSelected(product);
-                                            handleOpenProductModal();
-                                        }}
-                                    >
-                                        <img src={product.image} alt={product.name} height={80} width={80} className="object-cover"/>
-                                        <div className="flex flex-col gap-2 p-4">
-                                            <span className="h-full font-bold text-lg text-center">{product.name}</span>
+                                {products.map(product => {
+                                    const isAvailable = availableStock(product);
+                                    return (
+                                        <div
+                                            key={product.id}
+                                            className={`
+                                            flex flex-col items-center p-5 rounded-xl w-full h-full
+                                            ${isAvailable ? 'bg-(--brand-50)' : 'bg-gray-200 opacity-50 cursor-not-allowed'}
+                                            `}
+                                            onClick={() => {
+                                                if (!isAvailable) return;
+                                                setProductSelected(product);
+                                                handleOpenProductModal();
+                                            }}
+                                        >
+                                            <img src={product.image} alt={product.name} height={80} width={80} className="object-cover"/>
+                                            <span>{product.name}</span>
+                                            {!isAvailable && (
+                                                <span className="text-red-500 text-sm">Stok habis</span>
+                                            )}
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
+
                             </div>
                         </div>
                         <div className="rounded-lg bg-white h-fit border-(--brand-500) border shadow-md">

@@ -28,7 +28,7 @@ export async function updateMaterial(id: bigint, data: { quantity: number }) {
     return await prisma.material.update({
         where: { id },
         data: {
-            quantity: { increment: data.quantity }
+            stock: { increment: data.quantity }
         },
     });
 }

@@ -1,9 +1,7 @@
 import prisma from "@/lib/prisma";
 import { getStartDate, TimeRange } from "@/utils/date";
 
-export async function getAllProducts(options?: boolean) {
-    const includeMaterials = options ?? false;
-
+export async function getAllProducts() {
     const products = await prisma.productBase.findMany({
         where: {
             isDeleted: false,
@@ -48,18 +46,94 @@ export async function getAllProducts(options?: boolean) {
             id: String(id),
             option,
             price,
-            materials: includeMaterials
-            ? ingredients.map(({ material: {id, name, unit}, quantityUsed }) => ({
+            materials: ingredients.map(({ material: {id, name, unit}, quantityUsed }) => ({
                 id: String(id),
                 name,
                 unit,
                 quantityUsed
-                }))
-            : undefined
+            }))
         }))
     }))
 }
 
+export async function getCashierProducts() {
+    const products = await prisma.productBase.findMany({
+        where: {
+            isDeleted: false,
+        },
+        select: {
+            id: true,
+            name: true,
+            image: true,
+            variants: {
+                where: {
+                    isDeleted: false,
+                },
+                select: {
+                    id: true,
+                    price: true,
+                    option: true,
+                    ingredients: {
+                        where: {
+                            isDeleted: false,
+                        },
+                        select: {
+                            quantityUsed: true,
+                            material: {
+                                select: {
+                                    id: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    });
+    
+    const materials = await prisma.productIngredient.findMany({
+        where: {
+            isDeleted: false,
+            product: {
+                baseId: {
+                    in: products.map(p => p.id),
+                },
+            },
+        },
+        select: {
+            material: {
+                select: {
+                    id: true,
+                    stock: true,
+                },
+            },
+        },
+    });
+    
+    const parseProduct = products.map(({ id, name, image, variants }) => ({
+        id: String(id),
+        name,
+        image,
+        variants: variants.map(({ id, option, price, ingredients }) => ({
+            id: String(id),
+            option,
+            price,
+            materials: ingredients.map(({ material: { id }, quantityUsed }) => ({
+                id: String(id),
+                quantityUsed,
+            })),
+        })),
+    }))
+
+    const data = {
+        products: parseProduct,
+        materials: materials.map(({ material }) => ({
+            id: String(material.id),
+            stock: material.stock,
+        })),
+    }
+    return data;
+}
 
 export async function createProduct(data: { name: string; image: string }) {
     return await prisma.productBase.create({

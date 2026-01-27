@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { getStartDate, TimeRange } from "@/utils/date";
+import { PaymentType } from "@prisma/client";
 
 export async function getAllTransaction() {
     const transactions = await prisma.transaction.findMany({
@@ -59,16 +60,29 @@ export async function createTransaction(data: any) {
         paymentType,
         total,
         products,
+    }: {
+        cashierId: string,
+        paymentType: PaymentType,
+        total: number,
+        products: {
+            id: string,
+            quantity: number,
+            subtotal: number
+        } []
     } = data;
-    
-    await prisma.$transaction(async (tx) => {
+
+    const productQtyMap = Object.fromEntries(
+        products.map(product => [product.id, product.quantity])
+    );
+
+    return await prisma.$transaction(async (tx) => {
         const transaction = await tx.transaction.create({
             data: {
                 cashierId: BigInt(cashierId),
                 paymentType,
                 total,
                 details: {
-                    create: products.map((product: any) => ({
+                    create: products.map(product => ({
                         productId: BigInt(product.id),
                         quantity: product.quantity,
                         subtotal: product.subtotal,
@@ -80,7 +94,7 @@ export async function createTransaction(data: any) {
         const variants = await tx.productVariant.findMany({
             where: {
                 id: {
-                    in: products.map((product: any) => BigInt(product.id)),
+                    in: products.map(product => BigInt(product.id)),
                 },
             },
             select: {
@@ -93,10 +107,6 @@ export async function createTransaction(data: any) {
                 }
             }
         });
-        
-        const productQtyMap = Object.fromEntries(
-            products.map((p: any) => [p.id, p.quantity])
-        );
 
         const materialTotals = variants
             .flatMap(variant =>
@@ -113,29 +123,29 @@ export async function createTransaction(data: any) {
                 acc[key].total += item.total;
                 return acc;
             }, {});
-        
+
         for (const mat of Object.values(materialTotals)) {
             const material = await tx.material.findUnique({
             where: { id: mat.materialId },
                 select: { stock: true },
             });
-
+            
             if (!material || material.stock < mat.total) {
-            throw new Error(`Stok material tidak cukup`);
+                throw new Error(`Stok material tidak cukup`);
             }
         }
 
         for (const mat of Object.values(materialTotals)) {
             await tx.material.update({
-            where: { id: mat.materialId },
-                data: {
-                    stock: {
-                        decrement: mat.total,
+                where: { id: mat.materialId },
+                    data: {
+                        stock: {
+                            decrement: mat.total,
+                        },
                     },
-                },
-            });
+                }
+            );
         }
-
         return transaction;
     });
 }

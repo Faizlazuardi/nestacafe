@@ -1,10 +1,8 @@
-import { getAllProducts } from "@/services/product.service";
+import { getCashierProducts } from "@/services/product.service";
 
-export async function GET(request: Request): Promise<Response> {
+export async function GET(): Promise<Response> {
     try {
-        const { searchParams } = new URL(request.url);
-        const withMaterials = searchParams.get("withMaterials") === "true";
-        const products = await getAllProducts(withMaterials);
+        const products = await getCashierProducts();
         return new Response(JSON.stringify(products), { status: 200 });
     } catch (error: any) {
         return new Response(JSON.stringify({ message: error.message }), { status: 500 });
