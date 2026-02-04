@@ -2,7 +2,6 @@ import { CartItem } from "@/types/cart";
 import { formatIDR } from "@/utils/formatIDR";
 import { PaymentType } from "@prisma/client";
 import { QrCode, Banknote } from "lucide-react";
-import { useState } from "react";
 
 export default function PaymentModal({
     paymentMethod,
@@ -23,7 +22,7 @@ export default function PaymentModal({
 }) {
     const quickCash = [5000, 10000, 15000, 20000, 25000, 50000];
     const total = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-    const change = Number(cashAmount)-total;
+    const change = Number(cashAmount) - total;
 
     return (
         <div className="fixed inset-0 flex justify-center items-center bg-black/20">

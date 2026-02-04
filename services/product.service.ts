@@ -91,7 +91,7 @@ export async function getCashierProducts() {
         },
     });
     
-    const materials = await prisma.productIngredient.findMany({
+    const productIngredient = await prisma.productIngredient.findMany({
         where: {
             isDeleted: false,
             product: {
@@ -127,10 +127,17 @@ export async function getCashierProducts() {
 
     const data = {
         products: parseProduct,
-        materials: materials.map(({ material }) => ({
-            id: String(material.id),
-            stock: material.stock,
-        })),
+        materials: productIngredient.reduce<{ id: string; stock: number }[]>((acc, { material }) => {
+            const id = String(material.id);
+            const existing = acc.find(m => m.id === id);
+            if (!existing) {
+                acc.push({
+                    id,
+                    stock: material.stock,
+                });
+            }
+            return acc;
+        }, [])
     }
     return data;
 }

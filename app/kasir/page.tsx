@@ -9,9 +9,11 @@ import ConfirmModal from "@/app/kasir/components/confirmModal";
 import PaymentModal from "@/app/kasir/components/paymentModal";
 import SelectedProductModal from "@/app/kasir/components/selectedProductModal";
 import { useModals } from "@/hooks/useModals";
-import { Product } from "@/types/product";
+import { MaterialUsage, Product, ProductVariant } from "@/types/product";
 import { CartItem } from "@/types/cart";
 import { User } from "@/types/user";
+import { getMaterialRemaining } from "@/utils/getMaterialRemaining";
+import { Material } from "@/types/material";
 
 export default function KasirPage() {
     const { modals:productModal, open:handleOpenProductModal, close:handleCloseProductModal } = useModals();
@@ -19,7 +21,7 @@ export default function KasirPage() {
     const { modals:confirmModal, open:handleOpenConfirmModal, close:handleCloseConfirmModal } = useModals();
     
     const [products, setProducts] = useState<Product[]>([]);
-    const [materials, setMaterials] = useState<{id: string; stock: number}[]>([]);
+    const [materials, setMaterials] = useState<Pick<Material, "id" | "stock">[]>([]);
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [productSelected, setProductSelected] = useState<Product | null>(null)
     const [paymentMethod, setPaymentMethod] = useState< PaymentType | null>(null);
@@ -44,7 +46,7 @@ export default function KasirPage() {
             }))
         }
         try {
-            const res = await fetch('/api/checkout',
+            await fetch('/api/checkout',
                 {
                     method: 'POST',
                     headers: {
@@ -66,11 +68,19 @@ export default function KasirPage() {
         )
     }
     
-    const addToCart = (product: CartItem) => {
+    const addToCart = (product: CartItem, materialsUsed: MaterialUsage[]) => {
         setCartItems(prevItems => {
             const existingItem = prevItems.find(
                 item => item.id === product.id && item.variant === product.variant
             );
+            
+            const allMaterialsAvailable = materialsUsed.every(material =>
+                getMaterialRemaining(material.id, materials, prevItems, variantMap) - (material.quantityUsed * product.quantity) >= 0
+            );
+            
+            if (!allMaterialsAvailable) {
+                return prevItems;
+            }
             
             if (existingItem) {
                 return prevItems.map(item =>
@@ -79,10 +89,23 @@ export default function KasirPage() {
                     : item
                 );
             }
-            else{
-                return [...prevItems, product];
-            }
+            return [...prevItems, product];
         });
+    };
+    
+    const variantMap = new Map<string, ProductVariant>();
+    products.forEach(product => {
+        product.variants.forEach(variant => {
+            variantMap.set(variant.id, variant);
+        });
+    });
+    
+    const availableProduct = (product: Product) => {
+        return product.variants.some(variant =>
+            variant.materials.every(material =>
+                getMaterialRemaining(material.id, materials, cartItems, variantMap) >= material.quantityUsed
+            )
+        );
     };
     
     useEffect(() => {
@@ -99,33 +122,6 @@ export default function KasirPage() {
         fetchProducts();
     }, []);
     
-    
-    const availableStock = (product: Product) => {
-        const countMaterialRemaining = (materialId: string) => {
-            const materialStock = materials.find(m => m.id === materialId)?.stock ?? 0;
-            
-            const totalUsage = cartItems.reduce((total, item) => {
-                if (item.id !== product.id) return total;
-                
-                const variant = product.variants.find(v => v.option === item.variant);
-                if (!variant) return total;
-                
-                const material = variant.materials.find(m => m.id === materialId);
-                if (!material) return total;
-                
-                return total + material.quantityUsed * item.quantity;
-            }, 0);
-            
-            return materialStock - totalUsage;
-        };
-        
-        return product.variants.some(variant =>
-            variant.materials.every(material =>
-                countMaterialRemaining(material.id) >= material.quantityUsed
-            )
-        );
-    };
-    
     return (
         <>
             <div className="flex flex-col w-screen h-screen">
@@ -134,30 +130,31 @@ export default function KasirPage() {
                     <div className="gap-8 grid sm:grid-cols-[3fr_2fr] md:grid-cols-[2fr_1fr] lg:grid-cols-[3fr_1fr] w-full">
                         <div className="overflow-y-auto">
                             <div className="gap-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 auto-rows-fr">
-                                {products.map(product => {
-                                    const isAvailable = availableStock(product);
-                                    return (
-                                        <div
-                                            key={product.id}
-                                            className={`
-                                            flex flex-col items-center p-5 rounded-xl w-full h-full
-                                            ${isAvailable ? 'bg-(--brand-50)' : 'bg-gray-200 opacity-50 cursor-not-allowed'}
-                                            `}
-                                            onClick={() => {
-                                                if (!isAvailable) return;
-                                                setProductSelected(product);
-                                                handleOpenProductModal();
-                                            }}
-                                        >
-                                            <img src={product.image} alt={product.name} height={80} width={80} className="object-cover"/>
-                                            <span>{product.name}</span>
-                                            {!isAvailable && (
-                                                <span className="text-red-500 text-sm">Stok habis</span>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-
+                                {
+                                    products.map(product => {
+                                        const isAvailable = availableProduct(product);
+                                        return (
+                                            <div
+                                                key={product.id}
+                                                className={`
+                                                flex flex-col items-center p-5 rounded-xl w-full h-full
+                                                ${isAvailable ? 'bg-(--brand-50)' : 'bg-gray-200 opacity-50 cursor-not-allowed'}
+                                                `}
+                                                onClick={() => {
+                                                    if (!isAvailable) return;
+                                                    setProductSelected(product);
+                                                    handleOpenProductModal();
+                                                }}
+                                            >
+                                                <img src={product.image} alt={product.name} height={80} width={80} className="object-cover"/>
+                                                <span>{product.name}</span>
+                                                {!isAvailable && (
+                                                    <span className="text-red-500 text-sm">Stok habis</span>
+                                                )}
+                                            </div>
+                                        );
+                                    })
+                                }
                             </div>
                         </div>
                         <div className="rounded-lg bg-white h-fit border-(--brand-500) border shadow-md">
@@ -174,6 +171,9 @@ export default function KasirPage() {
                 productModal && (
                     <SelectedProductModal
                         productSelected={productSelected}
+                        materials={materials}
+                        cartItems={cartItems}
+                        variantMap={variantMap}
                         addToCart={addToCart}
                         onCloseProductModal={handleCloseProductModal}
                     />
