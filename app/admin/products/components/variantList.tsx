@@ -2,7 +2,7 @@ import { MaterialUsage, Product, ProductVariant } from "@/types/product";
 import { PencilLine, Trash2 } from "lucide-react";
 import UsageList from "./usageList";
 import AddButton from "@/app/admin/components/addButton";
-import { formatIDR } from "@/utils/formatIDR";
+import { formatIDR } from "@/lib/utils/formatIDR";
 
 export default function VariantList({
     base,

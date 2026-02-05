@@ -6,7 +6,7 @@ import { createProductIngredient, updateProductIngredient, deleteProductIngredie
 import { createProduct, updateProduct, deleteProduct  } from "@/services/product.service";
 import { createProductVariant, updateProductVariant, deleteProductVariant } from "@/services/product.variant.service";
 import { createMaterial, deleteMaterial, updateMaterial } from "@/services/material.service";
-import { saveImage } from "@/utils/saveImage";
+import { saveImage } from "@/lib/utils/saveImage";
 import { createUser, deleteUser, updateUser } from "@/services/user.service";
 
 export async function submitEntityAction(params: {

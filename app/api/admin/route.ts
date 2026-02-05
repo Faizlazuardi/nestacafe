@@ -1,7 +1,7 @@
 import { getTotalMaterials } from "@/services/material.service";
 import { getSoldProducts, getTotalProducts } from "@/services/product.service";
 import { getTotalRevenue } from "@/services/transaction.service";
-import { parseTimeRange } from "@/utils/time-range";
+import { parseTimeRange } from "@/lib/utils/time-range";
 
 export async function GET(req: Request): Promise<Response> {
     const { searchParams } = new URL(req.url);

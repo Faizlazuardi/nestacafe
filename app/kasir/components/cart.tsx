@@ -1,7 +1,7 @@
 import { ShoppingCart, Trash2, } from "lucide-react";
 import { CartItem } from "@/types/cart";
-import { VariantLabel } from "@/utils/variantlabel";
-import { formatIDR } from "@/utils/formatIDR";
+import { VariantLabel } from "@/lib/utils/variantlabel";
+import { formatIDR } from "@/lib/utils/formatIDR";
 
 export default function Cart({
     cartItems,

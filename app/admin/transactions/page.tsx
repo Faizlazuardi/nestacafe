@@ -2,7 +2,7 @@
 
 import { useModals } from "@/hooks/useModals";
 import { Transaction } from "@/types/transaction";
-import { formatIDR } from "@/utils/formatIDR";
+import { formatIDR } from "@/lib/utils/formatIDR";
 import { useEffect, useState } from "react";
 import TransactionModal from "../components/modal/transactionModal";
 

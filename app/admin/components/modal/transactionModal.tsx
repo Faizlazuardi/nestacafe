@@ -1,6 +1,6 @@
 import { purchasedProduct } from "@/types/product";
 import { Transaction } from "@/types/transaction";
-import { formatIDR } from "@/utils/formatIDR";
+import { formatIDR } from "@/lib/utils/formatIDR";
 import { Calendar, DollarSign, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
 

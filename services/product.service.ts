@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { getStartDate, TimeRange } from "@/utils/date";
+import { getStartDate, TimeRange } from "@/lib/utils/date";
 
 export async function getAllProducts() {
     const products = await prisma.productBase.findMany({

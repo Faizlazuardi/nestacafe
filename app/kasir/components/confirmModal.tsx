@@ -1,5 +1,5 @@
 import { CartItem } from "@/types/cart";
-import { formatIDR } from "@/utils/formatIDR";
+import { formatIDR } from "@/lib/utils/formatIDR";
 import { PaymentType } from "@prisma/client";
 import { QrCode, WalletMinimal, X } from "lucide-react";
 

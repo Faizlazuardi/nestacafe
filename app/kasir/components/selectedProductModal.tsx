@@ -4,9 +4,9 @@ import { useState } from "react";
 import { Minus, Plus } from "lucide-react";
 import { MaterialUsage, Product, ProductVariant } from "@/types/product"
 import { CartItem } from "@/types/cart";
-import { VariantLabel } from "@/utils/variantlabel";
-import { formatIDR } from "@/utils/formatIDR";
-import { getMaterialRemaining } from "@/utils/getMaterialRemaining";
+import { VariantLabel } from "@/lib/utils/variantlabel";
+import { formatIDR } from "@/lib/utils/formatIDR";
+import { getMaterialRemaining } from "@/lib/utils/getMaterialRemaining";
 
 export default function SelectedProductModal({
     productSelected,

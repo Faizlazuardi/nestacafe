@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { getStartDate, TimeRange } from "@/utils/date";
+import { getStartDate, TimeRange } from "@/lib/utils/date";
 import { PaymentType } from "@prisma/client";
 
 export async function getAllTransaction() {

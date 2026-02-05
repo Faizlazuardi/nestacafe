@@ -12,7 +12,7 @@ import { useModals } from "@/hooks/useModals";
 import { MaterialUsage, Product, ProductVariant } from "@/types/product";
 import { CartItem } from "@/types/cart";
 import { User } from "@/types/user";
-import { getMaterialRemaining } from "@/utils/getMaterialRemaining";
+import { getMaterialRemaining } from "@/lib/utils/getMaterialRemaining";
 import { Material } from "@/types/material";
 
 export default function KasirPage() {

@@ -7,7 +7,7 @@ import { TriangleAlert, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { deleteEntityAction } from "@/app/admin/actions";
-import { formatIDR } from "@/utils/formatIDR";
+import { formatIDR } from "@/lib/utils/formatIDR";
 
 export default function DeleteModal({ base, variant, usage, material, user, objectName, onCloseModal }: 
     {
