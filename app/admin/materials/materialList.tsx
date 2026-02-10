@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import UpsertModal from "@/app/admin/components/modal/upsertModal";
 import AddButton from "@/app/admin/components/addButton";
-import { Material } from "@/types/material";
+import { Material } from "@/lib/types/material";
 import { MaterialUnit } from "@prisma/client";
 import { useModals } from "@/hooks/useModals";
 import DeleteModal from "../components/modal/deleteModal";

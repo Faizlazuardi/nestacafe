@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { Minus, Plus } from "lucide-react";
-import { MaterialUsage, Product, ProductVariant } from "@/types/product"
-import { CartItem } from "@/types/cart";
+import { CartItem } from "@/lib/types/cart";
 import { VariantLabel } from "@/lib/utils/variantlabel";
 import { formatIDR } from "@/lib/utils/formatIDR";
 import { getMaterialRemaining } from "@/lib/utils/getMaterialRemaining";
+import { MaterialStock, ProductForSale, VariantForSale, VariantMaterialUsage } from "../types";
 
 export default function SelectedProductModal({
     productSelected,
@@ -17,17 +17,17 @@ export default function SelectedProductModal({
     onCloseProductModal,
 }
     : {
-        productSelected: Product | null,
-        materials: { id: string; stock: number }[],
+        productSelected: ProductForSale | null,
+        materials: MaterialStock[],
         cartItems: CartItem[],
-        variantMap: Map<string, ProductVariant>,
-        addToCart: (product: CartItem, materials: MaterialUsage[]) => void,
+        variantMap: Map<string, VariantForSale>,
+        addToCart: (product: CartItem, materials: VariantMaterialUsage[]) => void,
         onCloseProductModal: () => void,
     }) {
-    const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
+    const [selectedVariant, setSelectedVariant] = useState<VariantForSale | null>(null);
     const [quantity, setQuantity] = useState<number>(1);
 
-    const handleSelectedVariant = (variant: ProductVariant) => {
+    const handleSelectedVariant = (variant: VariantForSale) => {
         setSelectedVariant(prev => {
             if (variant.option === prev?.option) {
                 return null
@@ -37,7 +37,7 @@ export default function SelectedProductModal({
         })
     }
     
-    const availableVariant = (product: Product) => {
+    const availableVariant = (product: ProductForSale) => {
         return product.variants.filter(variant =>
             variant.materials.every(material => 
                 getMaterialRemaining(material.id, materials, cartItems, variantMap) >= material.quantityUsed * quantity

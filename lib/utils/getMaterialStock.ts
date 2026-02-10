@@ -1,5 +1,5 @@
-import { Material } from "@/types/material";
+import { MaterialStock } from "@/app/kasir/types";
 
-export const getMaterialStock = (materials: Pick<Material, "id" | "stock">[], materialId: string): number => {
+export const getMaterialStock = (materials: MaterialStock[], materialId: string): number => {
     return materials.find(m => m.id === materialId)?.stock ?? 0;
 };

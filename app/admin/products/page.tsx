@@ -1,11 +1,11 @@
 "use server"
 
-import { getAllProducts } from "@/services/product.service";
+import { getAllProducts } from "@/lib/services/product.service";
 import BaseList from "./components/baseList";
-import { Product } from "@/types/product";
+import { Product } from "@/lib/types/product";
 
-export default async function ProdukPage() {
-    const products: Product[] = await getAllProducts(true);
+export default async function Page() {
+    const products: Product[] = await getAllProducts();
     return (
         <BaseList products= {products}/>
     )

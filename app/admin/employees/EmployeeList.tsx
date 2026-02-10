@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react";
-import { User } from "@/types/user";
+import { User } from "@/lib/types/user";
 import UpsertModal from "@/app/admin/components/modal/upsertModal";
 import AddButton from "@/app/admin/components/addButton";
 import { PencilLine, Trash2 } from "lucide-react"

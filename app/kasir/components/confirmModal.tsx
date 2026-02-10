@@ -1,4 +1,4 @@
-import { CartItem } from "@/types/cart";
+import { CartItem } from "@/lib/types/cart";
 import { formatIDR } from "@/lib/utils/formatIDR";
 import { PaymentType } from "@prisma/client";
 import { QrCode, WalletMinimal, X } from "lucide-react";
@@ -7,7 +7,8 @@ export default function ConfirmModal({
     cartItems,
     paymentMethod,
     cashAmount,
-    onConfirm,
+    formAction,
+    isPending,
     onCloseConfirmModal,
     onOpenpaymentModal,
 }:
@@ -15,7 +16,8 @@ export default function ConfirmModal({
         cartItems: CartItem[];
         paymentMethod: PaymentType | null;
         cashAmount: string;
-        onConfirm: () => void;
+        formAction: () => void;
+        isPending: boolean;
         onCloseConfirmModal: () => void;
         onOpenpaymentModal: () => void;
     }) {
@@ -95,15 +97,13 @@ export default function ConfirmModal({
                         >
                             Batal
                         </button>
-                        <button
-                            className="px-6 py-3 rounded-md w-full hover:cursor-pointer button-primary"
-                            onClick={() => {
-                                onConfirm();
-                                onCloseConfirmModal();
-                            }}
-                        >
-                            Konfirmasi
-                        </button>
+                        <form action={formAction} className="w-full">
+                            <button
+                                className="px-6 py-3 rounded-md w-full hover:cursor-pointer button-primary"
+                            >
+                                {isPending ? 'Processing...' : 'Konfirmasi'}
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>

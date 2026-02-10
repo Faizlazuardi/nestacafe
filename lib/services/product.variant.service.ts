@@ -32,3 +32,34 @@ export async function deleteProductVariant(id: bigint) {
         });
     });
 }
+
+export async function getProductMaterials(productIds: bigint[]) {
+        const productIngredient = await prisma.productIngredient.findMany({
+        where: {
+            isDeleted: false,
+            productId: {
+                in: productIds
+            },
+        },
+        select: {
+            material: {
+                select: {
+                    id: true,
+                    stock: true,
+                },
+            },
+        },
+    });
+
+    return productIngredient.reduce<{ id: string; stock: number }[]>((acc, { material }) => {
+        const id = String(material.id);
+        const existing = acc.find(m => m.id === id);
+        if (!existing) {
+            acc.push({
+                id,
+                stock: material.stock,
+            });
+        }
+        return acc;
+    }, [])
+}

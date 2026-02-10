@@ -1,4 +1,4 @@
-import { Material } from "@/types/material";
+import { Material } from "@/lib/types/material";
 
 export default function UpdateMaterialForm({material}: {material: Material}){
     return (

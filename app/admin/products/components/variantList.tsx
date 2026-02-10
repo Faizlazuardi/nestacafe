@@ -1,4 +1,4 @@
-import { MaterialUsage, Product, ProductVariant } from "@/types/product";
+import { MaterialUsage, Product, ProductVariant } from "@/lib/types/product";
 import { PencilLine, Trash2 } from "lucide-react";
 import UsageList from "./usageList";
 import AddButton from "@/app/admin/components/addButton";

@@ -1,26 +1,29 @@
-import { purchasedProduct } from "@/types/product";
-import { Transaction } from "@/types/transaction";
+"use client"
+
+import { purchasedProduct } from "@/lib/types/product";
+import { Transaction } from "@/lib/types/transaction";
 import { formatIDR } from "@/lib/utils/formatIDR";
 import { Calendar, DollarSign, User, X } from "lucide-react";
+import { getTransactionDetailAction } from "../../transactions/action";
 import { useEffect, useState } from "react";
 
 export default function TransactionModal({
-    selectedTransaction,
+    transaction,
     onCloseTransactionModal
 }: {
-    selectedTransaction: Transaction;
+    transaction: Transaction;
     onCloseTransactionModal: ()=> void
 }){
-    const [purchasedProducts, setPurchasedProducts] = useState<purchasedProduct[] | null>(null)
-    useEffect(()=>{
-        if (!selectedTransaction) return;
-        const fetchDetailTransaction = async () => {
-            const res = await fetch(`/api/transaction/${selectedTransaction!.id}`)
-            const data = await res.json()
-            setPurchasedProducts(data)
+    const [products, setProducts] = useState<purchasedProduct[]>([]);
+    
+    useEffect(() => {
+        async function fetchData() {
+            const data = await getTransactionDetailAction(BigInt(transaction.id));
+            setProducts(data);
         }
-        fetchDetailTransaction()
-    },[selectedTransaction])
+        fetchData();
+    }, [transaction.id]);
+    
     return(
         <div className="fixed inset-0 flex justify-center items-center bg-black/20">
             <div className="flex flex-col items-center bg-white rounded-2xl w-md max-h-8/10">
@@ -36,21 +39,21 @@ export default function TransactionModal({
                                 <Calendar/>
                                 <div className="flex flex-col">
                                     <span>Tanggal</span>
-                                    <span className="font-bold">{new Date(selectedTransaction.createdAt).toLocaleString()}</span>
+                                    <span className="font-bold">{new Date(transaction.createdAt).toLocaleString()}</span>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
                                 <User/>
                                 <div className="flex flex-col">
                                     <span>Kasir</span>
-                                    <span className="font-bold">{selectedTransaction.cashier.name}</span>
+                                    <span className="font-bold">{transaction.cashier.name}</span>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
                                 <DollarSign/>
                                 <div className="flex flex-col">
                                     <span>Metode Pembayaran</span>
-                                    <span className="font-bold">{selectedTransaction.paymentType}</span>
+                                    <span className="font-bold">{transaction.paymentType}</span>
                                 </div>
                             </div>
                         </div>
@@ -58,7 +61,7 @@ export default function TransactionModal({
                     <div className="flex flex-col gap-4 bg-gray-100 p-4 border border-gray-500 rounded-2xl">
                         <span className="font-bold">Daftar Item</span>
                         {
-                            purchasedProducts?.map(product => (
+                            products?.map(product => (
                                 <div key={product.id} className="flex flex-col gap-2 bg-white p-4 border border-gray-500 rounded-lg">
                                     <div className="flex justify-between gap-2">
                                         <span className="font-bold">{product.name} {product.option}</span>

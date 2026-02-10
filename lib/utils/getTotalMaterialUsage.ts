@@ -1,10 +1,10 @@
-import { CartItem } from "@/types/cart";
-import { ProductVariant } from "@/types/product";
+import { CartItem } from "@/lib/types/cart";
+import { VariantForSale } from "@/app/kasir/types";
 
 export const getTotalMaterialUsage = (
     materialId: string,
     cartItems: CartItem[],
-    variantMap: Map<string, ProductVariant>
+    variantMap: Map<string, VariantForSale>
 ): number => {
     return cartItems.reduce((total, item) => {
         const variant = variantMap.get(item.id);

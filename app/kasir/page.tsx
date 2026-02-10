@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { PaymentType, } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import Navigation from "@/app/components/navigation";
@@ -9,34 +9,30 @@ import ConfirmModal from "@/app/kasir/components/confirmModal";
 import PaymentModal from "@/app/kasir/components/paymentModal";
 import SelectedProductModal from "@/app/kasir/components/selectedProductModal";
 import { useModals } from "@/hooks/useModals";
-import { MaterialUsage, Product, ProductVariant } from "@/types/product";
-import { CartItem } from "@/types/cart";
-import { User } from "@/types/user";
+import { CartItem } from "@/lib/types/cart";
 import { getMaterialRemaining } from "@/lib/utils/getMaterialRemaining";
-import { Material } from "@/types/material";
+import { checkoutAction, getMaterialsUsedByProducts, getProductsForCashier } from "./actions";
+import { CheckoutInput } from "./types";
+import { MaterialStock, ProductForSale, VariantForSale, VariantMaterialUsage } from "./types";
 
-export default function KasirPage() {
+export default function Page() {
     const { modals:productModal, open:handleOpenProductModal, close:handleCloseProductModal } = useModals();
     const { modals:paymentModal, open:handleOpenpaymentModal, close:handleClosePaymentModal } = useModals();
     const { modals:confirmModal, open:handleOpenConfirmModal, close:handleCloseConfirmModal } = useModals();
     
-    const [products, setProducts] = useState<Product[]>([]);
-    const [materials, setMaterials] = useState<Pick<Material, "id" | "stock">[]>([]);
+    const [products, setProducts] = useState<ProductForSale[]>([]);
+    const [materials, setMaterials] = useState<MaterialStock[]>([]);
+    const [productSelected, setProductSelected] = useState<ProductForSale | null>(null)
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
-    const [productSelected, setProductSelected] = useState<Product | null>(null)
     const [paymentMethod, setPaymentMethod] = useState< PaymentType | null>(null);
     const [cashAmount, setCashAmount] = useState<string>("");
-
-    const { data: session } = useSession();
-    const user = session?.user as User | null;
-    
-    const handleTransaction = async () => {
+    const [state, formAction, isPending] = useActionState(async () => {
         const totalPrice = cartItems.reduce((sum, item) => {
             return sum + item.quantity * item.price;
         }, 0);
-        const payload:any = {
-            cashierId: user!.id,
-            paymentType: paymentMethod,
+        const payload: CheckoutInput = {
+            cashierId: user.id,
+            paymentType: paymentMethod!,
             total: totalPrice,
             products: cartItems.map(item => ({
                 id: item.id,
@@ -45,22 +41,20 @@ export default function KasirPage() {
                 subtotal: item.quantity * item.price
             }))
         }
-        try {
-            await fetch('/api/checkout',
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload)
-                }
-            )
-            setCartItems([]);
-            setPaymentMethod(null);
-        } catch(error: any){
-            console.error(error);
+        const result = await checkoutAction(payload)
+        
+        if (!result.status || result.status === "error") {
+            throw new Error(result.message);
         }
-    }
+        
+        setCartItems([]);
+        setPaymentMethod(null);
+        handleCloseConfirmModal()
+        return result.message;
+    }, null)
+
+    const { data: session } = useSession();
+    const user = session!.user;
 
     const removeFromCart = (product: CartItem):void =>{
         setCartItems(prevItems =>
@@ -68,7 +62,7 @@ export default function KasirPage() {
         )
     }
     
-    const addToCart = (product: CartItem, materialsUsed: MaterialUsage[]) => {
+    const addToCart = (product: CartItem, materialsUsed: VariantMaterialUsage[]) => {
         setCartItems(prevItems => {
             const existingItem = prevItems.find(
                 item => item.id === product.id && item.variant === product.variant
@@ -93,14 +87,14 @@ export default function KasirPage() {
         });
     };
     
-    const variantMap = new Map<string, ProductVariant>();
+    const variantMap = new Map<string, VariantForSale>();
     products.forEach(product => {
         product.variants.forEach(variant => {
             variantMap.set(variant.id, variant);
         });
     });
     
-    const availableProduct = (product: Product) => {
+    const availableProduct = (product: ProductForSale) => {
         return product.variants.some(variant =>
             variant.materials.every(material =>
                 getMaterialRemaining(material.id, materials, cartItems, variantMap) >= material.quantityUsed
@@ -109,17 +103,21 @@ export default function KasirPage() {
     };
     
     useEffect(() => {
-        async function fetchProducts() {
+        async function fetchData() {
             try {
-                const res = await fetch('/api/product');
-                const { products, materials } = await res.json();
+                const { data: products } = await getProductsForCashier();
+                if (!products) throw new Error("Products not found");
+                
+                const {data: materials} = await getMaterialsUsedByProducts(products);
+                if (!materials) throw new Error("Materials not found");
+                
                 setProducts(products);
                 setMaterials(materials);
             } catch (error) {
-                console.error(error);
+                console.error("Failed to fetch cashier data:", error);
             }
         }
-        fetchProducts();
+        fetchData();
     }, []);
     
     return (
@@ -197,7 +195,8 @@ export default function KasirPage() {
                     <ConfirmModal 
                         cartItems={cartItems} 
                         paymentMethod={paymentMethod}
-                        onConfirm={handleTransaction}
+                        formAction={formAction}
+                        isPending={isPending}
                         onCloseConfirmModal={handleCloseConfirmModal} 
                         onOpenpaymentModal={handleOpenpaymentModal}
                         cashAmount={cashAmount}

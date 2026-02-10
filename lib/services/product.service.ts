@@ -91,26 +91,7 @@ export async function getCashierProducts() {
         },
     });
     
-    const productIngredient = await prisma.productIngredient.findMany({
-        where: {
-            isDeleted: false,
-            product: {
-                baseId: {
-                    in: products.map(p => p.id),
-                },
-            },
-        },
-        select: {
-            material: {
-                select: {
-                    id: true,
-                    stock: true,
-                },
-            },
-        },
-    });
-    
-    const parseProduct = products.map(({ id, name, image, variants }) => ({
+    return products.map(({ id, name, image, variants }) => ({
         id: String(id),
         name,
         image,
@@ -124,22 +105,6 @@ export async function getCashierProducts() {
             })),
         })),
     }))
-
-    const data = {
-        products: parseProduct,
-        materials: productIngredient.reduce<{ id: string; stock: number }[]>((acc, { material }) => {
-            const id = String(material.id);
-            const existing = acc.find(m => m.id === id);
-            if (!existing) {
-                acc.push({
-                    id,
-                    stock: material.stock,
-                });
-            }
-            return acc;
-        }, [])
-    }
-    return data;
 }
 
 export async function createProduct(data: { name: string; image: string }) {
@@ -201,42 +166,27 @@ export async function getSoldProducts(time: TimeRange) {
         },
     });
     
-    const bases = await prisma.productBase.findMany({
+    const variants = await prisma.productVariant.findMany({
         where: {
-            variants: {
-                some: {
-                    id: {
-                        in: details.map(d => d.productId),
-                    },
-                },
-            },
+            id: { in: details.map(d => d.productId) },
         },
         select: {
             id: true,
-            name: true,
-            image: true,
-            variants: {
-                select: { id: true },
+            base: {
+                select: {
+                    id: true,
+                    name: true,
+                    image: true,
+                },
             },
         },
     });
-
-    const variantToBase = new Map<
-        bigint,
-        { id: bigint; name: string; image: string | null }
-    >();
-
-    for (const base of bases) {
-        for (const variant of base.variants) {
-            variantToBase.set(variant.id, {
-                id: base.id,
-                name: base.name,
-                image: base.image,
-            });
-        }
-    }
-
-    const baseTotals = details.reduce<Record<string, { id: string; name: string; image: string | null; totalQuantity: number }>>((acc, d) => {
+    
+    const variantToBase = new Map(
+        variants.map(v => [v.id, v.base])
+    );
+    
+    const baseTotals = details.reduce<Record<string, { id: string; name: string; image: string; totalQuantity: number }>>((acc, d) => {
         const base = variantToBase.get(d.productId);
         if (!base) return acc;
         

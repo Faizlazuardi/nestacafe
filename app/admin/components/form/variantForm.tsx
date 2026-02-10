@@ -1,4 +1,4 @@
-import { Product, ProductVariant } from "@/types/product";
+import { Product, ProductVariant } from "@/lib/types/product";
 import { VariantOption } from "@prisma/client";
 import { ChevronDown } from "lucide-react";
 

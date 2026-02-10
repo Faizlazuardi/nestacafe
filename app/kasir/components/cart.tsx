@@ -1,5 +1,5 @@
 import { ShoppingCart, Trash2, } from "lucide-react";
-import { CartItem } from "@/types/cart";
+import { CartItem } from "@/lib/types/cart";
 import { VariantLabel } from "@/lib/utils/variantlabel";
 import { formatIDR } from "@/lib/utils/formatIDR";
 

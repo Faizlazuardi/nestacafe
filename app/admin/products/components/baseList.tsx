@@ -1,6 +1,6 @@
 "use client"
 
-import { MaterialUsage, Product, ProductVariant } from "@/types/product";
+import { MaterialUsage, Product, ProductVariant } from "@/lib/types/product";
 import AddButton from "@/app/admin/components/addButton";
 import { PencilLine, Trash2 } from "lucide-react";
 import VariantList from "./variantList";
@@ -80,7 +80,7 @@ export default function BaseList({ products }: { products: Product[]}) {
                 })
             }
             {
-                upsertModal && (
+                upsertModal && objectName && (
                     <UpsertModal
                         base={selectedBase}
                         variant={selectedVariant}
@@ -92,7 +92,7 @@ export default function BaseList({ products }: { products: Product[]}) {
                 )
             }
             {
-                deleteModal && (
+                deleteModal && objectName && (
                     <DeleteModal
                         base={selectedBase}
                         variant={selectedVariant}

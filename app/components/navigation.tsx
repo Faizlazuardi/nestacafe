@@ -1,7 +1,7 @@
 "use client"
 
 import { LogOut, UserIcon } from 'lucide-react';
-import { User } from '@/types/user';
+import { User } from '@/lib/types/user';
 import { useSession, signOut } from 'next-auth/react';
 
 export default function Navigation() {

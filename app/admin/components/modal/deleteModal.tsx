@@ -1,70 +1,120 @@
-"use client"
+"use client";
 
-import { Material } from "@/types/material";
-import { MaterialUsage, Product, ProductVariant } from "@/types/product";
-import { User } from "@/types/user";
 import { TriangleAlert, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useActionState } from "react";
 import { deleteEntityAction } from "@/app/admin/actions";
+import { MaterialUsage, Product, ProductVariant } from "@/lib/types/product";
+import { Material } from "@/lib/types/material";
+import { User } from "@/lib/types/user";
 import { formatIDR } from "@/lib/utils/formatIDR";
 
-export default function DeleteModal({ base, variant, usage, material, user, objectName, onCloseModal }: 
-    {
-    base?: Pick<Product, 'id' | 'name' | 'variants'>;
+type DeleteModalProps = {
+    base?: Pick<Product, "id" | "name" | "variants">;
     variant?: ProductVariant;
     usage?: MaterialUsage;
     material?: Material;
     user?: User;
-    objectName: 'Produk' | 'Varian' | 'Komposisi' | 'Bahan Baku' | 'Karyawan' | null;
-    onCloseModal: () => void
+    objectName: keyof typeof detailRenderer;
+    onCloseModal: () => void;
+};
+
+const detailRenderer = {
+    Produk: ({ base }: DeleteModalProps) =>
+        base ? <ProductDetail base={base} /> : null,
+
+    Varian: ({ variant }: DeleteModalProps) =>
+        variant ? <VariantDetail variant={variant} /> : null,
+
+    Komposisi: ({ usage }: DeleteModalProps) =>
+        usage ? <IngredientDetail usage={usage} /> : null,
+
+    "Bahan Baku": ({ material }: DeleteModalProps) =>
+        material ? <MaterialDetail material={material} /> : null,
+
+    Karyawan: ({ user }: DeleteModalProps) =>
+        user ? <EmployeeDetail user={user} /> : null,
+} as const;
+
+export default function DeleteModal(props: {
+    base?: Pick<Product, "id" | "name" | "variants">;
+    variant?: ProductVariant;
+    usage?: MaterialUsage;
+    material?: Material;
+    user?: User;
+    objectName: keyof typeof detailRenderer;
+    onCloseModal: () => void;
 }) {
-    const router = useRouter()
-    const [isPending, startTransition] = useTransition();
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        startTransition(() => {
-            deleteEntityAction({
-                objectName: objectName!,
-                baseId: base?.id,
-                variantId: variant?.id,
-                usageId: usage?.id,
-                materialId: material?.id,
-                employeeId: user?.id
-            }).then(() => {
-                router.refresh();
-                onCloseModal();
+    const router = useRouter();
+    
+    const { base, variant, usage, material, user, objectName, onCloseModal } = props;
+    const deleteIdMap = {
+        Produk: base?.id,
+        Varian: variant?.id,
+        Komposisi: usage?.id,
+        "Bahan Baku": material?.id,
+        Karyawan: user?.id,
+    } as const;
+    
+    const [message, formAction, isPending] = useActionState(
+        async () => {
+            if (!objectName) return null;
+            const deleteId = deleteIdMap[objectName];
+            if (!deleteId) return null;
+            
+            const result = await deleteEntityAction({
+                objectName: objectName,
+                id: deleteId,
             });
-        });
-    };
+            
+            if (!result.status || result.status === "error") {
+                throw new Error(result.message);
+            }
+            
+            router.refresh();
+            onCloseModal();
+            return result.message;
+        },
+        null
+    );
+    
+    const DetailComponent = objectName && detailRenderer[objectName];
+
     return (
         <div className="fixed inset-0 flex justify-center items-center bg-black/20">
-            <div className="flex flex-col justify-center bg-white rounded-lg w-xl h-fit">
+            <div className="flex flex-col bg-white rounded-lg w-xl">
+                {/* Header */}
                 <div className="flex justify-between p-6 bg-(--brand-500) text-gray-100 items-center rounded-t-lg">
-                    <span className="text-2xl">Hapus {objectName}</span>
-                    <X className="w-fit h-full" onClick={onCloseModal}/>
+                <span className="text-2xl">Hapus {objectName}</span>
+                <X className="cursor-pointer" onClick={onCloseModal} />
                 </div>
+                {/* Content */}
                 <div className="flex flex-col gap-4 p-6">
-                    <div className=" flex items-center p-4 text-(--brand-500) border border-(--brand-500) gap-4 bg-(--brand-50) rounded-lg">
-                        <TriangleAlert/>
-                        <span className="text-lg">Data yang akan di hapus tidak dapat dikembalikan</span>
+                    <div className="flex items-center gap-4 p-4 text-(--brand-500) border border-(--brand-500) bg-(--brand-50) rounded-lg">
+                        <TriangleAlert />
+                        <span className="text-lg">
+                            Data yang akan dihapus tidak dapat dikembalikan
+                        </span>
                     </div>
-                    <div className="flex flex-col gap-4">
-                        { objectName === "Produk" && <ProductDetail base={base!} /> }
-                        { objectName === "Varian" && <VariantDetail variant={variant!} /> }
-                        { objectName === "Komposisi" && <IngredientDetail usage={usage!} /> }
-                        { objectName === "Bahan Baku" && <MaterialDetail material={material!} /> }
-                        { objectName === "Karyawan" && <EmployeeDetail user={user!} /> }
-                    </div>
-                    <div className="flex gap-6 w-full">
+
+                    {DetailComponent && <DetailComponent {...props} />}
+
+                    {/* Actions */}
+                    <div className="flex gap-6">
                         <button
-                            className="px-6 py-3 rounded-md w-full hover:cursor-pointer button-secondary"
+                            type="button"
+                            className="px-6 py-3 rounded-md w-full button-secondary"
                             onClick={onCloseModal}
                         >
-                            Batal
+                        Batal
                         </button>
-                        <form className="w-full" onSubmit={handleSubmit} method="post">
-                            <button type="submit" className="px-6 py-3 rounded-lg w-full text-lg button-primary" disabled={isPending}>
+
+                        <form className="w-full" action={formAction}>
+                            <button
+                                type="submit"
+                                disabled={isPending}
+                                className="px-6 py-3 rounded-lg w-full text-lg button-primary"
+                            >
                                 {isPending ? "Menghapus..." : "Hapus"}
                             </button>
                         </form>
@@ -72,7 +122,7 @@ export default function DeleteModal({ base, variant, usage, material, user, obje
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
 function ProductDetail({ base }: {

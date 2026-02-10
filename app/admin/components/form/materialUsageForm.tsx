@@ -1,11 +1,11 @@
-"use client"
+"use server"
 
-import { MaterialUsage, Product, ProductVariant } from "@/types/product";
-import { Material } from "@/types/material";
-import { useEffect, useState } from "react";
+import { MaterialUsage, Product, ProductVariant } from "@/lib/types/product";
+import { Material } from "@/lib/types/material";
 import { ChevronDown } from "lucide-react";
+import { getAllMaterials } from "@/lib/services/material.service";
 
-export default function MaterialUsageForm({
+export default async function MaterialUsageForm({
     base,
     variant,
     usage
@@ -14,20 +14,7 @@ export default function MaterialUsageForm({
     variant: Pick<ProductVariant, 'id' | 'option'>;
     usage?: MaterialUsage
 }) {
-    const [materials, setMaterials] = useState<Material[]>([]);
-
-    useEffect(() => {
-        async function fetchMaterials() {
-            try {
-                const res = await fetch('/api/material');
-                const data = await res.json();
-                setMaterials(data);
-            } catch (error) {
-                console.error(error);
-            }
-        }
-        fetchMaterials();
-    }, []);
+    const materials: Material[] = await getAllMaterials()
 
     return (
         <>
