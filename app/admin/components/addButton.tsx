@@ -7,7 +7,7 @@ export default function AddButton({ objectName, action }: {
 }) {
     return (
         <button
-            className="flex gap-2 px-4 py-2 rounded-lg button-primary"
+            className="flex gap-2 px-4 py-2 rounded-lg font-semibold button-primary"
             onClick={action}
         >
             <Plus /> Tambah {objectName}

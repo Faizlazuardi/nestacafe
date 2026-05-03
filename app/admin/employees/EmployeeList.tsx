@@ -8,12 +8,56 @@ import { PencilLine, Trash2 } from "lucide-react"
 import { useModals } from "@/hooks/useModals";
 import DeleteModal from "../components/modal/deleteModal";
 import { UserRole } from "@prisma/client";
+import EmployeeForm from "../components/form/employeeForm";
+import { createEmployeeAction, deleteEmployeeAction, updateEmployeeAction } from "../actions";
+import { EmployeeDeleteDetail } from "../components/modal/deleteDetails/EmployeeDeleteDetail"; 
+import { useRouter } from "next/navigation";
 
 export default function EmployeeList({ users }:{users: User[]}) {
     const {modals: upsertModal, open: handleOpenUpsertModal, close: handleCloseUpsertModal} = useModals()
     const {modals: deleteModal, open: handleOpenDeleteModal, close: handleCloseDeleteModal} = useModals()
     const [action, setAction] = useState<"PUT" | "POST" | null>(null);
     const [selectedUser, setSelectedUser] = useState<User | undefined>(undefined)
+    const router = useRouter()
+
+const handleSaveEntity = async (initialState: unknown, formData: FormData) => {
+        if (!formData) return { data: undefined, error: new Error("No form data") };
+        try {
+            if (action === "POST") {
+                await createEmployeeAction({ formData });
+            } else if (action === "PUT" && selectedUser) {
+                await updateEmployeeAction({ employeeId: selectedUser.id.toString(), formData });
+            }
+            router.refresh();
+            handleCloseUpsertModal();
+            return { data: { success: true }, error: null };
+        } catch (error) {
+            return { data: undefined, error: error instanceof Error ? error : new Error("Save failed") };
+        }
+    };
+
+const handleDeleteEntity = async () => {
+        if (!selectedUser) {
+            return { data: undefined, error: new Error("No user selected") };
+        }
+        
+        try {
+            await deleteEmployeeAction({ employeeId: selectedUser.id.toString() });
+            
+            router.refresh();
+            handleCloseDeleteModal();
+            
+            return {
+                data: { id: selectedUser.id, objectName: "Karyawan" },
+                error: null,
+            };
+        } catch (error) {
+            return {
+                data: undefined,
+                error: error instanceof Error ? error : new Error("Delete failed"),
+            };
+        }
+    };
     
     return (
         <>
@@ -72,12 +116,24 @@ export default function EmployeeList({ users }:{users: User[]}) {
             </table>
             {
                 upsertModal && (
-                    <UpsertModal objectName={"Karyawan"} method={action!} onCloseModal={handleCloseUpsertModal} user={selectedUser}/>
+                    <UpsertModal
+                        onCloseModal={handleCloseUpsertModal}
+                        handleSaveEntity={handleSaveEntity}
+                        placeholder={action === "POST" ? "Tambah Karyawan" : `Update ${selectedUser?.name}`}
+                    >
+                        <EmployeeForm user={selectedUser} />
+                    </UpsertModal>
                 )
             }
-            {
-                deleteModal && (
-                    <DeleteModal objectName={"Karyawan"} onCloseModal={handleCloseDeleteModal} user={selectedUser}/>
+{
+                deleteModal && selectedUser && (
+                    <DeleteModal 
+                        objectName="Karyawan" 
+                        onCloseModal={handleCloseDeleteModal}
+                        handleDeleteEntity={handleDeleteEntity}
+                    >
+                        <EmployeeDeleteDetail user={selectedUser} />
+                    </DeleteModal>
                 )
             }
         </>

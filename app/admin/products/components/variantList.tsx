@@ -1,4 +1,4 @@
-import { MaterialUsage, Product, ProductVariant } from "@/lib/types/product";
+import { MaterialUsageDetail, Product, ProductVariant } from "@/lib/types/product";
 import { PencilLine, Trash2 } from "lucide-react";
 import UsageList from "./usageList";
 import AddButton from "@/app/admin/components/addButton";
@@ -20,10 +20,10 @@ export default function VariantList({
     onOpenUpsertModal: () => void;
     onOpenDeleteModal: () => void;
     setAction: (action: "POST" | "PUT") => void;
-    setObjectName: (name: 'Produk' | 'Varian' | 'Komposisi' | 'Bahan Baku' | 'Karyawan') => void;
+    setObjectName: (name: 'Produk' | 'Varian' | 'Komposisi') => void;
     setSelectedBase: (base: Pick<Product, 'id' | 'name' | 'variants'> | undefined) => void;
     setSelectedVariant: (variant: ProductVariant | undefined) => void;
-    setSelectedMaterial: (material: MaterialUsage | undefined) => void
+    setSelectedMaterial: (material: MaterialUsageDetail | undefined) => void
 }) {
     return (
         <>
@@ -41,19 +41,19 @@ export default function VariantList({
                 />
             </div>
             {
-                variants.map((variant: ProductVariant) => {
+                variants.map(variant => {
                     return (
-                        <div className="flex flex-col bg-background border border-(--brand-500) rounded-xl w-full" key={variant.id}>
-                            <div className="flex justify-between items-center p-4 border-b border-(--brand-500)">
-                                <div className="flex gap-4">
-                                    <span className="font-bold text-lg py-2 px-4 bg-(--brand-500) rounded-2xl text-white">
+                        <div key={variant.id} className="flex flex-col border border-(--brand-500) rounded-xl w-full" >
+                            <div className="flex justify-between items-center p-4 rounded-t-xl border-b border-(--brand-500) bg-(--brand-50)">
+                                <div className="flex items-center gap-3">
+                                    <span className="font-bold text-lg py-1 px-4 bg-(--brand-500) rounded-2xl text-white">
                                         {variant.option}
                                     </span>
-                                    <span className="font-bold text-lg py-2 px-4 bg-white border border-(--brand-500) rounded-2xl">
+                                    <span className="font-bold text-lg py-1 px-4 bg-white border border-(--brand-500) rounded-2xl">
                                         {formatIDR(variant.price)}
                                     </span>
                                 </div>
-                                <div className="flex gap-4">
+                                <div className="flex gap-3">
                                     <button
                                         onClick={() => {
                                             setSelectedBase(base);
@@ -75,7 +75,7 @@ export default function VariantList({
                                     </button>
                                 </div>
                             </div>
-                            <div className="flex flex-col gap-4 bg-white p-4 rounded-b-xl">
+                            <div className="flex flex-col gap-4 bg-background p-4 rounded-b-xl">
                                 <UsageList
                                     base={base}
                                     variant={variant}

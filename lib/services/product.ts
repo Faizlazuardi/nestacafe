@@ -107,27 +107,66 @@ export async function getCashierProducts() {
     }))
 }
 
+export async function getMaterialStock(productIds: bigint[]) {
+        const productIngredient = await prisma.productIngredient.findMany({
+        where: {
+            isDeleted: false,
+            productId: {
+                in: productIds
+            },
+        },
+        select: {
+            material: {
+                select: {
+                    id: true,
+                    stock: true,
+                },
+            },
+        },
+    });
+
+    return productIngredient.reduce<{ id: string; stock: number }[]>((acc, { material }) => {
+        const id = String(material.id);
+        const existing = acc.find(m => m.id === id);
+        if (!existing) {
+            acc.push({
+                id,
+                stock: material.stock,
+            });
+        }
+        return acc;
+    }, [])
+}
+
 export async function createProduct(data: { name: string; image: string }) {
-    return await prisma.productBase.create({
+    const result = await prisma.productBase.create({
         data
     });
+    if (!result) {
+        return { error: new Error("Failed to create product") };
+    }
+    return { data: result };
 }
 
 export async function updateProduct(id: bigint, data: { name: string; image?: string }) {
-    return await prisma.productBase.update({
+    const result = await prisma.productBase.update({
         where: { id },
         data,
     });
+    if (!result) {
+        return { error: new Error("Failed to update product") };
+    }
+    return { data: result };
 }
 
 export async function deleteProduct(id: bigint) {
-    await prisma.$transaction(async (tx) => {
-        await tx.productBase.update({
+    const result = await prisma.$transaction(async (tx) => {
+        const base = await tx.productBase.update({
             where: { id },
             data: { isDeleted: true },
         });
 
-        await tx.productVariant.updateMany({
+        const variants = await tx.productVariant.updateMany({
             where: {
                 baseId: id,
                 isDeleted: false,
@@ -137,7 +176,7 @@ export async function deleteProduct(id: bigint) {
             },
         });
 
-        await tx.productIngredient.updateMany({
+        const ingredients = await tx.productIngredient.updateMany({
             where: {
                 product: {
                     baseId: id,
@@ -148,7 +187,11 @@ export async function deleteProduct(id: bigint) {
                 isDeleted: true,
             },
         });
+        return { base, variants, ingredients };
     });
+    if (!result) {
+        return { error: new Error("Failed to delete product") };
+    }
 }
 
 export async function getSoldProducts(time: TimeRange) {

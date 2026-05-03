@@ -1,6 +1,6 @@
 "use server"
 
-import { getAllMaterials } from "@/lib/services/material.service";
+import { getAllMaterials } from "@/lib/services/material";
 import MaterialList from "./materialList";
 
 export default async function Page() {

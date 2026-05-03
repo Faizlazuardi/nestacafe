@@ -1,5 +1,5 @@
 import { PaymentType } from "@prisma/client"
-import { User } from "./user"
+import { User } from "@/lib/types/user"
 
 export interface Transaction {
     id: string,

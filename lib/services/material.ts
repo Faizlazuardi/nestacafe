@@ -19,27 +19,39 @@ export async function getAllMaterials() {
 }
 
 export async function createMaterial(data: { name: string; unit: MaterialUnit; stock: number }) {
-    return await prisma.material.create({
+    const result = await prisma.material.create({
         data,
     });
+    if (!result) {
+        return { error: new Error("Failed to create material") };
+    }
+    return { data: result };
 }
 
 export async function updateMaterial(id: bigint, data: { quantity: number }) {
-    return await prisma.material.update({
+    const result = await prisma.material.update({
         where: { id },
         data: {
             stock: { increment: data.quantity }
         },
     });
+    if (!result) {
+        return { error: new Error("Failed to update material") };
+    }
+    return { data: result };
 }
 
 export async function deleteMaterial(id: bigint) {
-    return await prisma.material.update({
+    const result = await prisma.material.update({
         where: { id },
         data: {
             isDeleted: true
         }
     });
+    if (!result) {
+        return { error: new Error("Failed to delete material") };
+    }
+    return { data: result };
 }
 
 export async function getTotalMaterials() {

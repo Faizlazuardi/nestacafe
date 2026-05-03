@@ -8,6 +8,10 @@ import { Material } from "@/lib/types/material";
 import { MaterialUnit } from "@prisma/client";
 import { useModals } from "@/hooks/useModals";
 import DeleteModal from "../components/modal/deleteModal";
+import { UpdateMaterialForm, AddMaterialForm } from "../components/form/materialForm";
+import { createMaterialAction, deleteMaterialAction, updateMaterialAction } from "../actions";
+import { MaterialDeleteDetail } from "../components/modal/deleteDetails/MaterialDeleteDetail";
+import { useRouter } from "next/navigation";
 
 function formatQuantity(quantity: number, unit: string): string {
     if(quantity < 1000) {
@@ -23,6 +27,46 @@ export default function MaterialList({ materials }: {materials: Material[]}) {
     const {modals: deleteModal, open: handleOpenDeleteModal, close: handleCloseDeleteModal} = useModals()
     const [action, setAction] = useState<"PUT" | "POST" | null>(null);
     const [selectedMaterial, setSelectedMaterial] = useState<Material | undefined>(undefined);
+    const router = useRouter()
+
+const handleSaveEntity = async (initialState: unknown, formData: FormData) => {
+        if (!formData) return { data: undefined, error: new Error("No form data") };
+        try {
+            if (action === "POST") {
+                await createMaterialAction({ formData });
+            } else if (action === "PUT" && selectedMaterial) {
+                await updateMaterialAction({ materialId: selectedMaterial.id.toString(), formData });
+            }
+            router.refresh();
+            handleCloseUpsertModal();
+            return { data: { success: true }, error: null };
+        } catch (error) {
+            return { data: undefined, error: error instanceof Error ? error : new Error("Save failed") };
+        }
+    };
+
+const handleDeleteEntity = async () => {
+        if (!selectedMaterial) {
+            return { data: undefined, error: new Error("No material selected") };
+        }
+        
+        try {
+            await deleteMaterialAction({ materialId: selectedMaterial.id.toString() });
+            
+            router.refresh();
+            handleCloseDeleteModal();
+            
+            return {
+                data: { id: selectedMaterial.id, objectName: "Bahan Baku" },
+                error: null,
+            };
+        } catch (error) {
+            return {
+                data: undefined,
+                error: error instanceof Error ? error : new Error("Delete failed"),
+            };
+        }
+    };
     
     return (
         <>
@@ -66,12 +110,27 @@ export default function MaterialList({ materials }: {materials: Material[]}) {
             </div>
             {
                 upsertModal && (
-                    <UpsertModal objectName={"Bahan Baku"} method={action!} onCloseModal={handleCloseUpsertModal} material={selectedMaterial}/>
+                    <UpsertModal 
+                        onCloseModal={handleCloseUpsertModal}
+                        handleSaveEntity={handleSaveEntity}
+                        placeholder={
+                            action === "POST" ? "Tambah Bahan Baku" : 
+                            `Update ${selectedMaterial?.name}`}
+                    >
+                        { action === "POST" && <AddMaterialForm /> }
+                        { action === "PUT" && <UpdateMaterialForm material={selectedMaterial!}/> }
+                    </UpsertModal>
                 )
             }
-            {
-                deleteModal && (
-                    <DeleteModal objectName={"Bahan Baku"} onCloseModal={handleCloseDeleteModal} material={selectedMaterial}/>
+{
+                deleteModal && selectedMaterial && (
+                    <DeleteModal 
+                        objectName="Bahan Baku" 
+                        onCloseModal={handleCloseDeleteModal}
+                        handleDeleteEntity={handleDeleteEntity}
+                    >
+                        <MaterialDeleteDetail material={selectedMaterial} />
+                    </DeleteModal>
                 )
             }
         </>

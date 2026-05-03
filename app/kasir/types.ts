@@ -1,8 +1,8 @@
-import { VariantOption } from "@prisma/client";
+import { PaymentType, VariantOption } from "@prisma/client";
 
 export type CheckoutInput = {
     cashierId: string;
-    paymentType: string;
+    paymentType: PaymentType;
     total: number;
     products: {
         id: string;
@@ -12,26 +12,15 @@ export type CheckoutInput = {
     }[];
 };
 
-export type VariantMaterialUsage = {
-    id: string
-    quantityUsed: number
-}
-
-export type VariantForSale = {
-    id: string
-    option: VariantOption
-    price: number
-    materials: VariantMaterialUsage[]
-}
-
-export type ProductForSale = {
-    id: string
-    name: string
-    image: string
-    variants: VariantForSale[]
-}
-
 export type MaterialStock = {
     id: string
     stock: number
+}
+export interface CartItem {
+    id: string;
+    name: string;
+    image: string;
+    price: number;
+    variant: VariantOption;
+    quantity: number;
 }

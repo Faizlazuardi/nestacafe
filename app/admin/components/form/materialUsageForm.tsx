@@ -1,21 +1,18 @@
-"use server"
-
-import { MaterialUsage, Product, ProductVariant } from "@/lib/types/product";
+import { MaterialUsageDetail, Product, ProductVariant } from "@/lib/types/product";
 import { Material } from "@/lib/types/material";
 import { ChevronDown } from "lucide-react";
-import { getAllMaterials } from "@/lib/services/material.service";
 
-export default async function MaterialUsageForm({
+export default function MaterialUsageForm({
     base,
     variant,
-    usage
+    usage,
+    materials
 }: {
     base: Pick<Product, 'id' | 'name'>;
     variant: Pick<ProductVariant, 'id' | 'option'>;
-    usage?: MaterialUsage
+    usage?: MaterialUsageDetail
+    materials: Material[]
 }) {
-    const materials: Material[] = await getAllMaterials()
-
     return (
         <>
             <label className="flex flex-col gap-2 text-xl">
@@ -37,7 +34,7 @@ export default async function MaterialUsageForm({
                     >
                         <option disabled hidden value="">Pilih Nama Bahan Baku</option>
                         {
-                            Object.values(materials).map((material) => (
+                            Object.values(materials).map(material => (
                                 <option
                                     key={material.id}
                                     value={material.id}

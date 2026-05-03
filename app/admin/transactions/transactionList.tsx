@@ -1,7 +1,7 @@
 "use client"
 
 import { useModals } from "@/hooks/useModals";
-import { Transaction } from "@/lib/types/transaction";
+import { Transaction } from "../types"; 
 import { formatIDR } from "@/lib/utils/formatIDR";
 import { useState } from "react";
 import TransactionModal from "../components/modal/transactionModal";

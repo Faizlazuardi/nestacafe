@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useState, useRef } from "react";
 import { PaymentType, } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import Navigation from "@/app/components/navigation";
@@ -9,11 +9,13 @@ import ConfirmModal from "@/app/kasir/components/confirmModal";
 import PaymentModal from "@/app/kasir/components/paymentModal";
 import SelectedProductModal from "@/app/kasir/components/selectedProductModal";
 import { useModals } from "@/hooks/useModals";
-import { CartItem } from "@/lib/types/cart";
-import { getMaterialRemaining } from "@/lib/utils/getMaterialRemaining";
-import { checkoutAction, getMaterialsUsedByProducts, getProductsForCashier } from "./actions";
+import { calculateAvailableStock } from "@/lib/utils/calculateAvailableStock";
+import { checkoutAction } from "./actions";
 import { CheckoutInput } from "./types";
-import { MaterialStock, ProductForSale, VariantForSale, VariantMaterialUsage } from "./types";
+import { MaterialStock, CartItem } from "./types";
+import ProductCard from "./components/productCard";
+import { getCashierProducts, getMaterialStock } from "@/lib/services/product";
+import { MaterialUsageDetail, ProductForSale, ProductVariantForSale } from "@/lib/types/product";
 
 export default function Page() {
     const { modals:productModal, open:handleOpenProductModal, close:handleCloseProductModal } = useModals();
@@ -26,12 +28,49 @@ export default function Page() {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [paymentMethod, setPaymentMethod] = useState< PaymentType | null>(null);
     const [cashAmount, setCashAmount] = useState<string>("");
-    const [state, formAction, isPending] = useActionState(async () => {
+    
+    // Store user id in ref for useActionState
+    const userIdRef = useRef<string>("");
+
+    const { data: session, status } = useSession();
+    
+    // Update userId ref when session changes
+    useEffect(() => {
+        if (session?.user) {
+            userIdRef.current = session.user.id;
+        }
+    }, [session]);
+    
+    // Fetch data after session is available
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const products = await getCashierProducts();
+                if (!products) throw new Error("Products not found");
+                const variantIds = products.flatMap(product =>
+                    product.variants.map(variant => BigInt(variant.id))
+                );
+                const materials = await getMaterialStock(variantIds)
+                if (!materials) throw new Error("Materials not found");
+                
+                setProducts(products);
+                setMaterials(materials);
+            } catch (error) {
+                console.error("Failed to fetch cashier data:", error);
+            }
+        }
+        if (status === "authenticated") {
+            fetchData();
+        }
+    }, [status]);
+
+    const [, formAction, isPending] = useActionState(async () => {
         const totalPrice = cartItems.reduce((sum, item) => {
             return sum + item.quantity * item.price;
         }, 0);
+        
         const payload: CheckoutInput = {
-            cashierId: user.id,
+            cashierId: userIdRef.current,
             paymentType: paymentMethod!,
             total: totalPrice,
             products: cartItems.map(item => ({
@@ -53,8 +92,23 @@ export default function Page() {
         return result.message;
     }, null)
 
-    const { data: session } = useSession();
-    const user = session!.user;
+    // Handle loading state
+    if (status === "loading") {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <div className="border-[--brand-500] border-b-2 rounded-full w-12 h-12 animate-spin"></div>
+            </div>
+        );
+    }
+    
+    // Handle unauthenticated state
+    if (!session?.user) {
+        return (
+            <div className="flex flex-col justify-center items-center gap-4 h-screen">
+                <p className="text-gray-600 text-lg">Silakan login untuk mengakses halaman kasir</p>
+            </div>
+        );
+    }
 
     const removeFromCart = (product: CartItem):void =>{
         setCartItems(prevItems =>
@@ -62,14 +116,14 @@ export default function Page() {
         )
     }
     
-    const addToCart = (product: CartItem, materialsUsed: VariantMaterialUsage[]) => {
+    const addToCart = (product: CartItem, materialsUsed: MaterialUsageDetail[]) => {
         setCartItems(prevItems => {
             const existingItem = prevItems.find(
                 item => item.id === product.id && item.variant === product.variant
             );
             
             const allMaterialsAvailable = materialsUsed.every(material =>
-                getMaterialRemaining(material.id, materials, prevItems, variantMap) - (material.quantityUsed * product.quantity) >= 0
+                calculateAvailableStock(material.id, materials, prevItems, variantList) >= material.quantityUsed * product.quantity
             );
             
             if (!allMaterialsAvailable) {
@@ -87,38 +141,10 @@ export default function Page() {
         });
     };
     
-    const variantMap = new Map<string, VariantForSale>();
-    products.forEach(product => {
-        product.variants.forEach(variant => {
-            variantMap.set(variant.id, variant);
-        });
-    });
-    
-    const availableProduct = (product: ProductForSale) => {
-        return product.variants.some(variant =>
-            variant.materials.every(material =>
-                getMaterialRemaining(material.id, materials, cartItems, variantMap) >= material.quantityUsed
-            )
-        );
-    };
-    
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                const { data: products } = await getProductsForCashier();
-                if (!products) throw new Error("Products not found");
-                
-                const {data: materials} = await getMaterialsUsedByProducts(products);
-                if (!materials) throw new Error("Materials not found");
-                
-                setProducts(products);
-                setMaterials(materials);
-            } catch (error) {
-                console.error("Failed to fetch cashier data:", error);
-            }
-        }
-        fetchData();
-    }, []);
+    const variantList = new Map<string, ProductVariantForSale>();
+    for (const p of products) {
+        for (const v of p.variants) variantList.set(v.id, v);
+    }
     
     return (
         <>
@@ -128,31 +154,14 @@ export default function Page() {
                     <div className="gap-8 grid sm:grid-cols-[3fr_2fr] md:grid-cols-[2fr_1fr] lg:grid-cols-[3fr_1fr] w-full">
                         <div className="overflow-y-auto">
                             <div className="gap-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 auto-rows-fr">
-                                {
-                                    products.map(product => {
-                                        const isAvailable = availableProduct(product);
-                                        return (
-                                            <div
-                                                key={product.id}
-                                                className={`
-                                                flex flex-col items-center p-5 rounded-xl w-full h-full
-                                                ${isAvailable ? 'bg-(--brand-50)' : 'bg-gray-200 opacity-50 cursor-not-allowed'}
-                                                `}
-                                                onClick={() => {
-                                                    if (!isAvailable) return;
-                                                    setProductSelected(product);
-                                                    handleOpenProductModal();
-                                                }}
-                                            >
-                                                <img src={product.image} alt={product.name} height={80} width={80} className="object-cover"/>
-                                                <span>{product.name}</span>
-                                                {!isAvailable && (
-                                                    <span className="text-red-500 text-sm">Stok habis</span>
-                                                )}
-                                            </div>
-                                        );
-                                    })
-                                }
+                                <ProductCard
+                                    products={products}
+                                    materials={materials}
+                                    cartItems={cartItems}
+                                    variantList={variantList}
+                                    setProductSelected={setProductSelected}
+                                    handleOpenProductModal={handleOpenProductModal}
+                                />
                             </div>
                         </div>
                         <div className="rounded-lg bg-white h-fit border-(--brand-500) border shadow-md">
@@ -171,7 +180,7 @@ export default function Page() {
                         productSelected={productSelected}
                         materials={materials}
                         cartItems={cartItems}
-                        variantMap={variantMap}
+                        variantList={variantList}
                         addToCart={addToCart}
                         onCloseProductModal={handleCloseProductModal}
                     />

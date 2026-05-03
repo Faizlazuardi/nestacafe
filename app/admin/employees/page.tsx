@@ -1,6 +1,6 @@
 "use server"
 
-import { getAllUsers } from "@/lib/services/user.service";
+import { getAllUsers } from "@/lib/services/user";
 import EmployeeList from "./EmployeeList";
 import { User } from "@/lib/types/user";
 

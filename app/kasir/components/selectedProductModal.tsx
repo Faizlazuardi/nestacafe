@@ -2,17 +2,16 @@
 
 import { useState } from "react";
 import { Minus, Plus } from "lucide-react";
-import { CartItem } from "@/lib/types/cart";
 import { VariantLabel } from "@/lib/utils/variantlabel";
 import { formatIDR } from "@/lib/utils/formatIDR";
-import { getMaterialRemaining } from "@/lib/utils/getMaterialRemaining";
-import { MaterialStock, ProductForSale, VariantForSale, VariantMaterialUsage } from "../types";
+import { calculateAvailableStock } from "@/lib/utils/calculateAvailableStock";
+import { MaterialStock, ProductForSale, VariantForSale, VariantMaterialUsage, CartItem } from "../types";
 
 export default function SelectedProductModal({
     productSelected,
     materials,
     cartItems,
-    variantMap,
+    variantList,
     addToCart,
     onCloseProductModal,
 }
@@ -20,7 +19,7 @@ export default function SelectedProductModal({
         productSelected: ProductForSale | null,
         materials: MaterialStock[],
         cartItems: CartItem[],
-        variantMap: Map<string, VariantForSale>,
+        variantList: Map<string, VariantForSale>,
         addToCart: (product: CartItem, materials: VariantMaterialUsage[]) => void,
         onCloseProductModal: () => void,
     }) {
@@ -40,7 +39,7 @@ export default function SelectedProductModal({
     const availableVariant = (product: ProductForSale) => {
         return product.variants.filter(variant =>
             variant.materials.every(material => 
-                getMaterialRemaining(material.id, materials, cartItems, variantMap) >= material.quantityUsed * quantity
+calculateAvailableStock(material.id, materials, cartItems, variantList) >= material.quantityUsed * quantity
             )
         );
     };
@@ -49,7 +48,7 @@ export default function SelectedProductModal({
         .filter(variant => variant.option === selectedVariant?.option)
         .every(variant =>
             variant.materials.every(material =>
-                getMaterialRemaining(material.id, materials, cartItems, variantMap) >= material.quantityUsed * (quantity + 1)
+calculateAvailableStock(material.id, materials, cartItems, variantList) >= material.quantityUsed * (quantity + 1)
             )
         );
     

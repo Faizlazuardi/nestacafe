@@ -1,7 +1,7 @@
 "use client"
 
 import { purchasedProduct } from "@/lib/types/product";
-import { Transaction } from "@/lib/types/transaction";
+import { Transaction } from "../../types"; 
 import { formatIDR } from "@/lib/utils/formatIDR";
 import { Calendar, DollarSign, User, X } from "lucide-react";
 import { getTransactionDetailAction } from "../../transactions/action";

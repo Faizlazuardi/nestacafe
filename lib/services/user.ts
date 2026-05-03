@@ -24,7 +24,7 @@ export async function createUser(name: string, password: string) {
         where: { name },
     });
     if (existingUser) {
-        throw new Error("User telah terdaftar");
+        return { error: new Error("User telah terdaftar") };
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
@@ -34,12 +34,17 @@ export async function createUser(name: string, password: string) {
             role: UserRole.Cashier
         },
     });
+    if (!user) {
+        return { error: new Error("Failed to create user") };
+    }
     return {
-        message: "User berhasil dibuat",
-        user: {
-            id: user.id,
-            name: user.name,
-        },
+        data: {
+            message: "User berhasil dibuat",
+            user: {
+                id: user.id,
+                name: user.name,
+            },
+        }
     };
 }
 
@@ -49,17 +54,25 @@ export async function updateUser(id:bigint, formData: {name: string, password: s
         name: formData.name,
         password: hashedPassword
     }
-    return prisma.user.update({
+    const result = await prisma.user.update({
         where: { id },
         data,
     });
+    if (!result) {
+        return { error: new Error("Failed to update user") };
+    }
+    return { data: result };
 }
 
 export async function deleteUser(id: bigint) {
-    return await prisma.user.update({
+    const result = await prisma.user.update({
         where: { id },
         data: {
             isActive: false
         }
     });
+    if (!result) {
+        return { error: new Error("Failed to delete user") };
+    }
+    return { data: result };
 }

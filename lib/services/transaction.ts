@@ -1,3 +1,4 @@
+import { CheckoutInput } from "@/app/kasir/types";
 import prisma from "@/lib/prisma";
 import { getStartDate, TimeRange } from "@/lib/utils/date";
 import { PaymentType } from "@prisma/client";
@@ -54,7 +55,7 @@ export async function getDetailTransaction(id: bigint) {
     }))
 }
 
-export async function createTransaction(data: any) {
+export async function createTransaction(data: CheckoutInput) {
     const {
         cashierId,
         paymentType,
