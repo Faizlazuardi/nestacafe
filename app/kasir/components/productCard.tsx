@@ -1,11 +1,12 @@
-import { MaterialStock, ProductForSale, VariantForSale, CartItem } from "../types";
+import { ProductForSale, ProductVariantForSale } from "@/lib/types/product";
+import { MaterialStock, CartItem } from "../types";
 import { calculateAvailableStock } from "@/lib/utils/calculateAvailableStock";
 
 export default function ProductCard({ products, materials, cartItems, variantList, setProductSelected, handleOpenProductModal }: { 
     products: ProductForSale[];
     materials: MaterialStock[];
     cartItems: CartItem[];
-    variantList: Map<string, VariantForSale>
+    variantList: Map<string, ProductVariantForSale>
     setProductSelected: (product: ProductForSale) => void;
     handleOpenProductModal: () => void;
 }) {

@@ -1,6 +1,6 @@
-import { MaterialUsage } from "@/lib/types/product";
+import { MaterialUsageDetail } from "@/lib/types/product";
 
-export function IngredientDeleteDetail({ usage }: { usage: MaterialUsage }) {
+export function IngredientDeleteDetail({ usage }: { usage: MaterialUsageDetail }) {
     return (
         <div className="flex flex-col gap-4 p-4 border border-(--brand-500) rounded-lg bg-(--brand-50)">
             <span className="font-bold text-lg">Detail Bahan baku yang akan dihapus</span>
