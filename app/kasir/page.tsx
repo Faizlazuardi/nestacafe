@@ -14,7 +14,7 @@ import { checkoutAction } from "./actions";
 import { CheckoutInput } from "./types";
 import { MaterialStock, CartItem } from "./types";
 import ProductCard from "./components/productCard";
-import { getCashierProducts, getMaterialStock } from "@/lib/services/product";
+import { getCashierProducts, getMaterialStock } from "./actions";
 import { MaterialUsageDetail, ProductForSale, ProductVariantForSale } from "@/lib/types/product";
 
 export default function Page() {

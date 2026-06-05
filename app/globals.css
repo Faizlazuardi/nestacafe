@@ -15,9 +15,6 @@
   --brand-800: #6C0710;
   --brand-900: #47040C;
   --brand-950: #2A0206;
-  
-  --font-geist-sans: 'Droid Sans', sans-serif;
-  --font-geist-mono: 'Droid Sans Mono', monospace;
 }
 
 @theme inline {
@@ -37,7 +34,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family:'Droid Sans', sans-serif;;
+  font-family: var(--font-sans), sans-serif;
 }
 
 .nav {
